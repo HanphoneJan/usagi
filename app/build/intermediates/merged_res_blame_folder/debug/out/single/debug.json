@@ -12,12 +12,20 @@
         "source": "com.example.usagi.app-main-37:/drawable/shime25.png"
     },
     {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_pinch_left_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/pinch_left_1.png"
+    },
+    {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime33.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/shime33.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime14.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/shime14.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_climb_3.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/climb_3.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime17.png.flat",
@@ -28,12 +36,24 @@
         "source": "com.example.usagi.app-main-37:/drawable/shime36.png"
     },
     {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_walk_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/walk_1.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_ceil_2.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/ceil_2.png"
+    },
+    {
         "merged": "com.example.usagi.app-merged_res-35:/raw_sound_double.wav.flat",
         "source": "com.example.usagi.app-main-37:/raw/sound_double.wav"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime10.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/shime10.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_tip_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/tip_1.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/xml_backup_rules.xml.flat",
@@ -52,6 +72,10 @@
         "source": "com.example.usagi.app-main-37:/drawable/shime45.png"
     },
     {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_tip_2.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/tip_2.png"
+    },
+    {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime32.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/shime32.png"
     },
@@ -66,6 +90,18 @@
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime13.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/shime13.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_bounce_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/bounce_1.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_pinch_left_2.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/pinch_left_2.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_ceil_3.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/ceil_3.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime41.png.flat",
@@ -96,6 +132,10 @@
         "source": "com.example.usagi.app-main-37:/drawable/shime29.png"
     },
     {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_pinch_right_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/pinch_right_1.png"
+    },
+    {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime4.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/shime4.png"
     },
@@ -104,12 +144,20 @@
         "source": "com.example.usagi.app-main-37:/drawable/shime31.png"
     },
     {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_stand_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/stand_1.png"
+    },
+    {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime12.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/shime12.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime19.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/shime19.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_pinch_left_3.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/pinch_left_3.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime1.png.flat",
@@ -128,6 +176,18 @@
         "source": "com.example.usagi.app-main-37:/drawable/shime27.png"
     },
     {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_creep_2.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/creep_2.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_climb_2.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/climb_2.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_twist_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/twist_1.png"
+    },
+    {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime23.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/shime23.png"
     },
@@ -140,8 +200,16 @@
         "source": "com.example.usagi.app-main-37:/drawable/shime8.png"
     },
     {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_pinch_right_2.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/pinch_right_2.png"
+    },
+    {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime20.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/shime20.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_jump_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/jump_1.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime5.png.flat",
@@ -150,6 +218,10 @@
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime38.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/shime38.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_fall_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/fall_1.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/raw_sit.wav.flat",
@@ -168,12 +240,28 @@
         "source": "com.example.usagi.app-main-37:/drawable/shime28.png"
     },
     {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_sit_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/sit_1.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_creep_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/creep_1.png"
+    },
+    {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime15.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/shime15.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime21.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/shime21.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_twist_2.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/twist_2.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_pinch_right_3.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/pinch_right_3.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime34.png.flat",
@@ -200,6 +288,18 @@
         "source": "com.example.usagi.app-main-37:/drawable/shime24.png"
     },
     {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_bounce_2.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/bounce_2.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_walk_2.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/walk_2.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_ceil_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/ceil_1.png"
+    },
+    {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime43.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/shime43.png"
     },
@@ -212,7 +312,15 @@
         "source": "com.example.usagi.app-main-37:/drawable/shime9.png"
     },
     {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_climb_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/climb_1.png"
+    },
+    {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_shime37.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/shime37.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/raw_wu_ya_yi_ha_none.wav.flat",
+        "source": "com.example.usagi.app-main-37:/raw/wu_ya_yi_ha_none.wav"
     }
 ]
