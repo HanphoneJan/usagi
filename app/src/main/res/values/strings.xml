@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">乌萨奇桌宠</string>
+    <string name="start_usagi">启动桌宠</string>
+    <string name="stop_usagi">停止桌宠</string>
+    <string name="settings">设置</string>
+    <string name="volume">音量</string>
+    <string name="animation_speed">动画速度</string>
+    <string name="auto_start">开机自启</string>
+    <string name="show_usagi">显示桌宠</string>
+    <string name="permission_required">需要悬浮窗权限</string>
+    <string name="grant_permission">授予权限</string>
+</resources>

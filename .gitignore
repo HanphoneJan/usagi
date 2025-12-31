@@ -1,0 +1,55 @@
+# ------------------------------
+# Android Studio / IDE 相关
+# ------------------------------
+.idea/                # AS 项目配置目录（包含 SDK 路径、代码风格等）
+.gradle/              # Gradle 本地缓存/配置
+local.properties      # 本地环境配置（SDK 路径、密钥等，绝对不能提交）
+*.iml                 # 模块配置文件
+*.iws                 # 工作区配置
+*.ipr                 # 项目配置
+out/                  # AS 编译输出目录
+build/                # 模块编译产物（每个 module 下的 build 都会被过滤）
+captures/             # 截图/录屏缓存
+.externalNativeBuild/ # NDK 构建缓存
+.cxx/                 # C/C++ 构建缓存
+*.apk                 # 生成的安装包
+*.ap_                 # 未签名的 apk 包
+*.dex                 # Dalvik 字节码文件
+*.class               # Java 编译后的类文件
+
+# ------------------------------
+# Gradle 构建相关
+# ------------------------------
+!gradle/wrapper/gradle-wrapper.jar  # 保留 wrapper 包（必提交）
+!gradle/wrapper/gradle-wrapper.properties  # 保留 wrapper 配置（必提交）
+gradle-app.setting     # Gradle 应用设置
+!gradle/               # 不忽略整个 gradle 目录（保留 wrapper）
+buildSrc/build/        # 自定义 Gradle 插件编译产物
+
+# ------------------------------
+# 系统/缓存文件
+# ------------------------------
+.DS_Store             # Mac 系统隐藏文件
+Thumbs.db             # Windows 缩略图缓存
+*.log                 # 日志文件
+tmp/                  # 临时目录
+*.bak                 # 备份文件
+*.swp                 # Vim 交换文件
+*~                    # 临时文件（Linux/Mac）
+
+# ------------------------------
+# 敏感/第三方文件
+# ------------------------------
+*.keystore            # 签名密钥库（绝对不能提交！）
+*.jks                 # 签名密钥文件
+*.properties          # 自定义的密钥配置（如 API_KEY、密钥等）
+crashlytics.properties # Crashlytics 配置
+fabric.properties     # Fabric 配置
+*.so                  # NDK 编译的so库（若需提交可注释此行）
+
+# ------------------------------
+# 测试/覆盖率相关
+# ------------------------------
+coverage/             # 测试覆盖率报告
+test-report/          # 测试报告
+*.ec                  # 覆盖率数据文件
