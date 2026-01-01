@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary colors -->
-    <color name="purple_500">#6200EE</color>
-    <color name="purple_700">#3700B3</color>
+    <!-- Primary colors - Usagi yellow -->
+    <color name="usagi_yellow_primary">#FFD700</color>
+    <color name="usagi_yellow_primary_dark">#FFC107</color>
+    <color name="usagi_yellow_primary_light">#FFEB3B</color>
     
-    <!-- Secondary colors -->
-    <color name="teal_200">#03DAC6</color>
-    <color name="teal_700">#018786</color>
+    <!-- Secondary colors - Complementary -->
+    <color name="usagi_orange_secondary">#FF9800</color>
+    <color name="usagi_orange_secondary_dark">#F57C00</color>
     
     <!-- Basic colors -->
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
+    
+    <!-- Legacy aliases for backward compatibility -->
+    <color name="purple_500">@color/usagi_yellow_primary</color>
+    <color name="purple_700">@color/usagi_yellow_primary_dark</color>
+    <color name="teal_200">@color/usagi_orange_secondary</color>
+    <color name="teal_700">@color/usagi_orange_secondary_dark</color>
 </resources>

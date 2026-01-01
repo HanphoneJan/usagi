@@ -2119,6 +2119,11 @@ int color teal_200 0x7f0502e6
 int color teal_700 0x7f0502e7
 int color tooltip_background_dark 0x7f0502e8
 int color tooltip_background_light 0x7f0502e9
+int color usagi_orange_secondary 0x7f0502eb
+int color usagi_orange_secondary_dark 0x7f0502ec
+int color usagi_yellow_primary 0x7f0502ed
+int color usagi_yellow_primary_dark 0x7f0502ee
+int color usagi_yellow_primary_light 0x7f0502ef
 int color white 0x7f0502ea
 int dimen abc_action_bar_content_inset_material 0x7f060000
 int dimen abc_action_bar_content_inset_with_nav 0x7f060001

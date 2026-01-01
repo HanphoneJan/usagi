@@ -2120,6 +2120,11 @@ color teal_200
 color teal_700
 color tooltip_background_dark
 color tooltip_background_light
+color usagi_orange_secondary
+color usagi_orange_secondary_dark
+color usagi_yellow_primary
+color usagi_yellow_primary_dark
+color usagi_yellow_primary_light
 color white
 dimen abc_action_bar_content_inset_material
 dimen abc_action_bar_content_inset_with_nav
