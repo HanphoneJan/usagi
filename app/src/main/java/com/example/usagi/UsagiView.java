@@ -104,6 +104,7 @@ public class UsagiView extends View {
     private long nextActionInterval = 2000;
     private boolean isMoving = false; // 标记是否正在进行强制移动
     private float moveStartX = 0; // 移动起始位置
+    private float moveStartY = 0; // 移动起始位置
     private float targetMoveDistance = 0; // 目标移动距离
     private float moveSpeed = 0; // 行走时保持的速度（正为向右，负为向左）
     private Direction lastMoveDirection = Direction.NONE; // 最近一次移动方向
@@ -292,8 +293,15 @@ public class UsagiView extends View {
             return;
         }
 
-        // 1. 应用重力
-        vy += GRAVITY;
+        // 1. 应用重力（仅在非吸附状态下应用）
+        boolean isAdhered = (posState == PositionState.FLOOR || 
+                            posState == PositionState.CEILING || 
+                            posState == PositionState.WALL_LEFT || 
+                            posState == PositionState.WALL_RIGHT);
+        
+        if (!isAdhered) {
+            vy += GRAVITY;
+        }
 
         // 2. 应用空气阻力
         vx *= AIR_FRICTION;
@@ -444,16 +452,30 @@ public class UsagiView extends View {
 
         // 处理正在进行的移动
         if (isMoving) {
-            // 如果已吸附在墙上，结束强制移动
-            if (posState == PositionState.WALL_LEFT || posState == PositionState.WALL_RIGHT) {
-                isMoving = false;
-                vx = 0;
-                moveSpeed = 0;
-                lastMoveDirection = Direction.NONE;
-                animState = AnimationState.IDLE;
+            // 墙壁或天花板的垂直移动
+            if (posState == PositionState.WALL_LEFT || posState == PositionState.WALL_RIGHT || posState == PositionState.CEILING) {
+                // 计算已经移动的距离
+                float distanceMoved = Math.abs(y - moveStartY);
+
+                // 如果还没到目标距离，继续移动，且保持速度以抵消空气阻力
+                if (distanceMoved < targetMoveDistance) {
+                    if (Math.abs(vy) < Math.abs(moveSpeed) * 0.6f) {
+                        // 如果速度被空气阻力减太多，则补回到移动速度的一个比例
+                        vy = (moveSpeed >= 0) ? Math.abs(moveSpeed) : -Math.abs(moveSpeed);
+                    }
+                    // 保持移动状态，等待完成
+                    return;
+                } else {
+                    // 已达到目标距离，结束移动
+                    isMoving = false;
+                    vy = 0;
+                    moveSpeed = 0;
+                    animState = AnimationState.IDLE;
+                }
                 return;
             }
 
+            // 地面的水平移动
             // 计算已经移动的距离
             float distanceMoved = Math.abs(x - moveStartX);
 
@@ -487,25 +509,41 @@ public class UsagiView extends View {
                     // 保持静止/微动
                     animState = AnimationState.IDLE;
                     vx = 0;
+                    vy = 0;
                 } else if (action < 8) {
                     // 爬行/走动 (改变速度)
                     animState = AnimationState.MOVE;
                     float speed = 2 + random.nextFloat() * 3;
 
-                    if (posState == PositionState.FLOOR || posState == PositionState.CEILING) {
-                        // 随机决定移动方向
+                    if (posState == PositionState.FLOOR) {
+                        // 地面：水平左右移动
                         boolean moveRight = random.nextBoolean();
-                        // 将移动速度与方向记录下来，确保在移动过程中保持并驱动贴图方向
                         moveSpeed = moveRight ? speed : -speed;
                         vx = moveSpeed;
                         lastMoveDirection = moveRight ? Direction.RIGHT : Direction.LEFT;
 
-                        // 设置强制移动标志和参数
                         isMoving = true;
                         moveStartX = x;
-                        targetMoveDistance = Math.max(screenWidth * 0.5f, screenWidth * 0.5f); // 至少移动0.5个屏幕宽度
+                        targetMoveDistance = screenWidth * 0.5f;
                     } else if (posState == PositionState.WALL_LEFT || posState == PositionState.WALL_RIGHT) {
-                        vy = speed; // 沿墙上下爬
+                        // 墙壁：垂直上下移动
+                        boolean moveDown = random.nextBoolean();
+                        moveSpeed = moveDown ? speed : -speed;
+                        vy = moveSpeed;
+
+                        isMoving = true;
+                        moveStartY = y;
+                        targetMoveDistance = screenHeight * 0.3f;
+                    } else if (posState == PositionState.CEILING) {
+                        // 天花板：水平左右移动
+                        boolean moveRight = random.nextBoolean();
+                        moveSpeed = moveRight ? speed : -speed;
+                        vx = moveSpeed;
+                        lastMoveDirection = moveRight ? Direction.RIGHT : Direction.LEFT;
+
+                        isMoving = true;
+                        moveStartX = x;
+                        targetMoveDistance = screenWidth * 0.5f;
                     }
                 } else {
                     // 特殊动作 (扭动等)
@@ -526,21 +564,76 @@ public class UsagiView extends View {
 
         // 移动状态下的持续逻辑
         if (animState == AnimationState.MOVE) {
-            // 如果撞墙了，AI自动反向
-            if (posState == PositionState.FLOOR || posState == PositionState.CEILING) {
-                if ((x <= 0 && vx < 0) || (x >= screenWidth - characterWidth && vx > 0)) {
-                    // 已经到边缘，结束移动
-                    isMoving = false;
+            if (posState == PositionState.FLOOR) {
+                // 地面移动：碰到左边缘，切换到左墙并继续向上移动
+                if (x <= 0 && vx < 0) {
+                    x = 0;
+                    posState = PositionState.WALL_LEFT;
+                    // 继续向上移动
+                    moveSpeed = Math.abs(moveSpeed); // 保持速度大小，方向向上
+                    vy = -moveSpeed;
                     vx = 0;
-                    animState = AnimationState.IDLE;
+                    moveStartY = y;
+                    targetMoveDistance = screenHeight * 0.3f;
+                }
+                // 碰到右边缘，切换到右墙并继续向上移动
+                else if (x >= screenWidth - characterWidth && vx > 0) {
+                    x = screenWidth - characterWidth;
+                    posState = PositionState.WALL_RIGHT;
+                    // 继续向上移动
+                    moveSpeed = Math.abs(moveSpeed); // 保持速度大小，方向向上
+                    vy = -moveSpeed;
+                    vx = 0;
+                    moveStartY = y;
+                    targetMoveDistance = screenHeight * 0.3f;
+                }
+            } else if (posState == PositionState.CEILING) {
+                // 天花板移动：碰到左边缘，切换到左墙并继续向下移动
+                if (x <= 0 && vx < 0) {
+                    x = 0;
+                    posState = PositionState.WALL_LEFT;
+                    // 继续向下移动
+                    moveSpeed = Math.abs(moveSpeed); // 保持速度大小，方向向下
+                    vy = moveSpeed;
+                    vx = 0;
+                    moveStartY = y;
+                    targetMoveDistance = screenHeight * 0.3f;
+                }
+                // 碰到右边缘，切换到右墙并继续向下移动
+                else if (x >= screenWidth - characterWidth && vx > 0) {
+                    x = screenWidth - characterWidth;
+                    posState = PositionState.WALL_RIGHT;
+                    // 继续向下移动
+                    moveSpeed = Math.abs(moveSpeed); // 保持速度大小，方向向下
+                    vy = moveSpeed;
+                    vx = 0;
+                    moveStartY = y;
+                    targetMoveDistance = screenHeight * 0.3f;
                 }
             } else if (posState == PositionState.WALL_LEFT || posState == PositionState.WALL_RIGHT) {
-                // 沿墙爬到头了自动下来
-                if ((y <= 0 && vy < 0) || (y >= screenHeight - characterHeight && vy > 0)) {
-                    posState = PositionState.AIR; // 放弃吸附，掉下去
-                    animState = AnimationState.FALL;
-                    vx = (posState == PositionState.WALL_LEFT) ? 2 : -2; // 轻轻推离墙壁
-                    isMoving = false;
+                // 墙壁移动：碰到上边缘，切换到天花板并继续水平移动
+                if (y <= 0 && vy < 0) {
+                    y = 0;
+                    posState = PositionState.CEILING;
+                    // 继续向右移动
+                    moveSpeed = Math.abs(moveSpeed); // 保持速度大小，方向向右
+                    vx = moveSpeed;
+                    vy = 0;
+                    moveStartX = x;
+                    targetMoveDistance = screenWidth * 0.5f;
+                    lastMoveDirection = Direction.RIGHT;
+                }
+                // 碰到下边缘，切换到地面并继续水平移动
+                else if (y >= screenHeight - characterHeight && vy > 0) {
+                    y = screenHeight - characterHeight;
+                    posState = PositionState.FLOOR;
+                    // 继续向右移动
+                    moveSpeed = Math.abs(moveSpeed); // 保持速度大小，方向向右
+                    vx = moveSpeed;
+                    vy = 0;
+                    moveStartX = x;
+                    targetMoveDistance = screenWidth * 0.5f;
+                    lastMoveDirection = Direction.RIGHT;
                 }
             }
         }
