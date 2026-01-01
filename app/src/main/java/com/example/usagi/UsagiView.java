@@ -129,8 +129,8 @@ public class UsagiView extends View {
         screenHeight = metrics.heightPixels;
 
         // 初始位置：屏幕上方
-        characterWidth = 200;
-        characterHeight = 200;
+        characterWidth = 128;
+        characterHeight = 128;
         x = screenWidth / 2 - characterWidth / 2;
         y = -characterHeight;
         vx = 0;
@@ -305,9 +305,9 @@ public class UsagiView extends View {
 
         // --- 边缘碰撞检测与吸附逻辑 ---
 
-        // 地面检测
+        // 地面检测（允许向下偏移 ADHERE_DRAW_OFFSET 以便贴合）
         if (nextY >= screenHeight - characterHeight) {
-            nextY = screenHeight - characterHeight;
+            nextY = screenHeight - characterHeight + ADHERE_DRAW_OFFSET;
             // 只有当速度足够大时才反弹，否则吸附
             if (vy > 8) {
                 vy = -vy * BOUNCE_DAMPING;
@@ -322,9 +322,9 @@ public class UsagiView extends View {
                 }
             }
         }
-        // 天花板检测
+        // 天花板检测（允许向上偏移 ADHERE_DRAW_OFFSET 以便贴合）
         else if (nextY <= 0) {
-            nextY = 0;
+            nextY = -ADHERE_DRAW_OFFSET;
             if (vy < -5) {
                 vy = -vy * BOUNCE_DAMPING; // 反弹
                 triggerImpact();
@@ -347,9 +347,9 @@ public class UsagiView extends View {
             }
         }
 
-        // 左墙壁检测
+        // 左墙壁检测（允许向左偏移 ADHERE_DRAW_OFFSET 以便贴合）
         if (nextX <= 0) {
-            nextX = 0;
+            nextX = -ADHERE_DRAW_OFFSET;
             if (vx < -5) {
                 vx = -vx * BOUNCE_DAMPING;
                 triggerImpact();
@@ -363,9 +363,9 @@ public class UsagiView extends View {
                 }
             }
         }
-        // 右墙壁检测
+        // 右墙壁检测（允许向右偏移 ADHERE_DRAW_OFFSET 以便贴合）
         else if (nextX >= screenWidth - characterWidth) {
-            nextX = screenWidth - characterWidth;
+            nextX = screenWidth - characterWidth + ADHERE_DRAW_OFFSET;
             if (vx > 5) {
                 vx = -vx * BOUNCE_DAMPING;
                 triggerImpact();
@@ -401,23 +401,28 @@ public class UsagiView extends View {
 
             // 额外小阈值自动贴边：当速度很小且接近屏幕边缘时强制吸附，提升边缘判定稳定性
             if (Math.abs(vx) < 1f && Math.abs(vy) < 1f) {
+                float targetLeftX = -ADHERE_DRAW_OFFSET;
+                float targetRightX = screenWidth - characterWidth + ADHERE_DRAW_OFFSET;
+                float targetCeilY = -ADHERE_DRAW_OFFSET;
+                float targetFloorY = screenHeight - characterHeight + ADHERE_DRAW_OFFSET;
+
                 // 优先左右吸附
                 if (x <= EDGE_SNAP_EPS) {
-                    x = 0;
+                    x = targetLeftX;
                     posState = PositionState.WALL_LEFT;
                     animState = AnimationState.IDLE;
                 } else if (x >= screenWidth - characterWidth - EDGE_SNAP_EPS) {
-                    x = screenWidth - characterWidth;
+                    x = targetRightX;
                     posState = PositionState.WALL_RIGHT;
                     animState = AnimationState.IDLE;
                 } else {
                     // 若不贴墙再判断上下边
                     if (y <= EDGE_SNAP_EPS) {
-                        y = 0;
+                        y = targetCeilY;
                         posState = PositionState.CEILING;
                         animState = AnimationState.IDLE;
                     } else if (y >= screenHeight - characterHeight - EDGE_SNAP_EPS) {
-                        y = screenHeight - characterHeight;
+                        y = targetFloorY;
                         posState = PositionState.FLOOR;
                         animState = AnimationState.IDLE;
                     }
@@ -516,7 +521,7 @@ public class UsagiView extends View {
         if (animState == AnimationState.MOVE) {
             // 如果撞墙了，AI自动反向
             if (posState == PositionState.FLOOR || posState == PositionState.CEILING) {
-                if ((x <= 0 && vx < 0) || (x >= screenWidth - characterWidth && vx > 0)) {
+                if ((x <= -ADHERE_DRAW_OFFSET && vx < 0) || (x >= screenWidth - characterWidth + ADHERE_DRAW_OFFSET && vx > 0)) {
                     // 已经到边缘，结束移动
                     isMoving = false;
                     vx = 0;
@@ -593,16 +598,33 @@ public class UsagiView extends View {
     private void updateWindowLayout() {
         if (layoutParams == null) layoutParams = (WindowManager.LayoutParams) getLayoutParams();
         if (layoutParams != null) {
-            // 如果处于吸附状态，则把绘制偏移应用到布局坐标，这样贴图不会被 view 边界裁剪掉
-            int offsetX = 0;
-            int offsetY = 0;
-            if (posState == PositionState.WALL_LEFT) offsetX -= ADHERE_DRAW_OFFSET;
-            else if (posState == PositionState.WALL_RIGHT) offsetX += ADHERE_DRAW_OFFSET;
-            if (posState == PositionState.FLOOR) offsetY += ADHERE_DRAW_OFFSET;
-            else if (posState == PositionState.CEILING) offsetY -= ADHERE_DRAW_OFFSET;
+            // 扩展视图尺寸以容纳吸附偏移，避免被系统裁剪
+            int viewW = characterWidth + ADHERE_DRAW_OFFSET * 2;
+            int viewH = characterHeight + ADHERE_DRAW_OFFSET * 2;
+            layoutParams.width = viewW;
+            layoutParams.height = viewH;
 
-            layoutParams.x = (int) (x + offsetX);
-            layoutParams.y = (int) (y + offsetY);
+            int desired_shift_x = 0;
+            int desired_shift_y = 0;
+            if (posState == PositionState.WALL_LEFT) desired_shift_x = -ADHERE_DRAW_OFFSET;
+            else if (posState == PositionState.WALL_RIGHT) desired_shift_x = ADHERE_DRAW_OFFSET;
+            if (posState == PositionState.FLOOR) desired_shift_y = ADHERE_DRAW_OFFSET;
+            else if (posState == PositionState.CEILING) desired_shift_y = -ADHERE_DRAW_OFFSET;
+
+            // layout.x,y 为视图左上角：将视图放置使得 bitmap 的屏幕坐标为 (x + desired_shift)
+            int lx = (int) (x + desired_shift_x - ADHERE_DRAW_OFFSET);
+            int ly = (int) (y + desired_shift_y - ADHERE_DRAW_OFFSET);
+
+            // 允许视图超出屏幕一定范围以保证偏移不会被裁剪
+            int minX = -ADHERE_DRAW_OFFSET * 2;
+            int maxX = screenWidth - characterWidth + ADHERE_DRAW_OFFSET * 2;
+            int minY = -ADHERE_DRAW_OFFSET * 2;
+            int maxY = screenHeight - characterHeight + ADHERE_DRAW_OFFSET * 2;
+            lx = Math.max(minX, Math.min(maxX, lx));
+            ly = Math.max(minY, Math.min(maxY, ly));
+
+            layoutParams.x = lx;
+            layoutParams.y = ly;
             windowManager.updateViewLayout(this, layoutParams);
         }
     }
@@ -621,8 +643,10 @@ public class UsagiView extends View {
 
             // 已移除所有基于位置的旋转，贴图方向由左右贴图区分处理
 
-            // 绘制图片（位置偏移已应用到布局，直接以 (0,0) 绘制）
-            canvas.drawBitmap(bitmap, 0, 0, new Paint());
+            // 绘制图片：在视图内以固定偏移绘制，layout 已负责方向性偏移
+            float drawX = ADHERE_DRAW_OFFSET;
+            float drawY = ADHERE_DRAW_OFFSET;
+            canvas.drawBitmap(bitmap, drawX, drawY, new Paint());
             canvas.restore();
         }
     }
@@ -694,20 +718,24 @@ public class UsagiView extends View {
 
     // 辅助：手动检测吸附（用于拖拽后低速释放）
     private void checkEdgeAdhere() {
-        // 使用更严格的边缘判定（接近实际屏幕边缘），并在吸附时把坐标钳位到边缘，避免出现可见间距
+        // 使用更严格的边缘判定并把坐标钳位到带偏移的吸附目标位置
         final float EPS = 1f;
         if (y >= screenHeight - characterHeight - EPS) {
             posState = PositionState.FLOOR;
-            y = screenHeight - characterHeight; // 钳位
+            y = screenHeight - characterHeight + ADHERE_DRAW_OFFSET; // 钳位至吸附位置
+            animState = AnimationState.IDLE;
         } else if (y <= EPS) {
             posState = PositionState.CEILING;
-            y = 0;
+            y = -ADHERE_DRAW_OFFSET;
+            animState = AnimationState.IDLE;
         } else if (x <= EPS) {
             posState = PositionState.WALL_LEFT;
-            x = 0;
+            x = -ADHERE_DRAW_OFFSET;
+            animState = AnimationState.IDLE;
         } else if (x >= screenWidth - characterWidth - EPS) {
             posState = PositionState.WALL_RIGHT;
-            x = screenWidth - characterWidth;
+            x = screenWidth - characterWidth + ADHERE_DRAW_OFFSET;
+            animState = AnimationState.IDLE;
         } else {
             posState = PositionState.AIR;
         }
