@@ -62,6 +62,7 @@ public class UsagiView extends View {
     private float vx, vy;         // 当前速度
     private PositionState posState = PositionState.AIR;
     private AnimationState animState = AnimationState.FALL;
+    private AnimationState prevAnimState = null; // 用于检测动画状态变化，从而重置帧索引
 
     // 资源管理
     private Bitmap[] idleFrames;    // 地面站立
@@ -77,11 +78,24 @@ public class UsagiView extends View {
     private boolean isDragging = false;
     private float lastTouchX, lastTouchY;
     private long lastTouchTime;
+    // 拖拽时的触点相对视图偏移（用于精确定位，避免贴边判定偏差）
+    private float dragOffsetX = 0;
+    private float dragOffsetY = 0;
 
     // 动画控制
     private int currentFrameIndex = 0;
     private long lastFrameTime = 0;
-    private int frameInterval = 150; // 毫秒
+    private int frameInterval = 120; // 毫秒（稍快的帧率让行走更流畅）
+
+    // 方向枚举（用于区分左右贴图）
+    private enum Direction {LEFT, RIGHT, NONE}
+
+    // 区分左右的贴图资源（优先使用左右专用资源，若不存在则回退或镜像）
+    private Bitmap[] walkLeftFrames;    // 向左走
+    private Bitmap[] walkRightFrames;   // 向右走
+    private Bitmap[] wallLeftFrames;    // 靠左吸附
+    private Bitmap[] wallRightFrames;   // 靠右吸附
+    private boolean useFlipForLeft = false; // 若没有左右贴图，是否使用镜像
 
     // AI 行为控制
     private long lastActionTime = 0;
@@ -89,6 +103,8 @@ public class UsagiView extends View {
     private boolean isMoving = false; // 标记是否正在进行强制移动
     private float moveStartX = 0; // 移动起始位置
     private float targetMoveDistance = 0; // 目标移动距离
+    private float moveSpeed = 0; // 行走时保持的速度（正为向右，负为向左）
+    private Direction lastMoveDirection = Direction.NONE; // 最近一次移动方向
 
     // 默认构造
     public UsagiView(Context context) {
@@ -127,10 +143,59 @@ public class UsagiView extends View {
 
         // 这里需要确保 drawable 中有对应的图片，如果找不到会报错，请根据实际素材调整
         idleFrames = loadFrames(new String[]{"stand_1"}, packageName); // 只有站立帧
-        walkFrames = loadFrames(new String[]{"walk_1", "walk_2"}, packageName); // 专门的行走动画帧
-        fallFrames = loadFrames(new String[]{"fall_1"}, packageName);
-        wallFrames = loadFrames(new String[]{"climb_1", "climb_2"}, packageName); // 假设爬墙用这组
-        ceilFrames = loadFrames(new String[]{"ceil_1", "ceil_2"}, packageName);   // 假设天花板用这组
+
+        // 优先寻找左右专用的行走贴图
+        walkLeftFrames = loadFramesIfExists(new String[]{"walk_left_1", "walk_left_2"}, packageName);
+        walkRightFrames = loadFramesIfExists(new String[]{"walk_right_1", "walk_right_2"}, packageName);
+
+        // 如果没有左右专用贴图，尝试加载通用行走贴图并生成左右镜像
+        if (walkLeftFrames == null && walkRightFrames == null) {
+            Bitmap[] commonWalk = loadFramesIfExists(new String[]{"walk_1", "walk_2"}, packageName);
+            if (commonWalk != null) {
+                walkRightFrames = commonWalk;
+                walkLeftFrames = flipBitmaps(commonWalk);
+                useFlipForLeft = false; // 我们有实际的左帧（镜像居然也是具体帧）
+            }
+        } else if (walkLeftFrames == null && walkRightFrames != null) {
+            walkLeftFrames = flipBitmaps(walkRightFrames);
+        } else if (walkRightFrames == null && walkLeftFrames != null) {
+            walkRightFrames = flipBitmaps(walkLeftFrames);
+        }
+
+        // 下落、天花板、墙的贴图
+        fallFrames = loadFramesIfExists(new String[]{"fall_1"}, packageName);
+        ceilFrames = loadFramesIfExists(new String[]{"ceil_1", "ceil_2"}, packageName);
+
+        // 墙面优先区分左右
+        wallLeftFrames = loadFramesIfExists(new String[]{"climb_left_1", "climb_left_2"}, packageName);
+        wallRightFrames = loadFramesIfExists(new String[]{"climb_right_1", "climb_right_2"}, packageName);
+        if (wallLeftFrames == null && wallRightFrames == null) {
+            // 回退到通用爬墙贴图，如果存在则产生左右帧
+            Bitmap[] commonWall = loadFramesIfExists(new String[]{"climb_1", "climb_2"}, packageName);
+            if (commonWall != null) {
+                wallRightFrames = commonWall;
+                wallLeftFrames = flipBitmaps(commonWall);
+            }
+        } else if (wallLeftFrames == null && wallRightFrames != null) {
+            wallLeftFrames = flipBitmaps(wallRightFrames);
+        } else if (wallRightFrames == null && wallLeftFrames != null) {
+            wallRightFrames = flipBitmaps(wallLeftFrames);
+        }
+
+        // 如果某些资源都为空，确保不会崩溃：回退到占位图
+        if (idleFrames == null) idleFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        if (walkLeftFrames == null && walkRightFrames == null) {
+            Bitmap placeholder = createPlaceholderBitmap(characterWidth, characterHeight);
+            walkRightFrames = new Bitmap[]{placeholder};
+            walkLeftFrames = flipBitmaps(walkRightFrames);
+        }
+        if (fallFrames == null) fallFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        if (ceilFrames == null) ceilFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        if (wallLeftFrames == null && wallRightFrames == null) {
+            Bitmap placeholder = createPlaceholderBitmap(characterWidth, characterHeight);
+            wallRightFrames = new Bitmap[]{placeholder};
+            wallLeftFrames = flipBitmaps(wallRightFrames);
+        }
 
         // 初始化声音
         AudioAttributes audioAttributes = new AudioAttributes.Builder()
@@ -167,6 +232,31 @@ public class UsagiView extends View {
             }
         }
         return frames;
+    }
+
+    // 尝试加载贴图，但如果资源不存在则返回 null（便于决定是否使用镜像或回退）
+    private Bitmap[] loadFramesIfExists(String[] names, String pkg) {
+        // 简单判断第一个资源是否存在
+        int resId = getResources().getIdentifier(names[0], "drawable", pkg);
+        if (resId == 0) return null;
+        return loadFrames(names, pkg);
+    }
+
+    // 镜像一套贴图（左右互换）
+    private Bitmap[] flipBitmaps(Bitmap[] src) {
+        if (src == null) return null;
+        Bitmap[] out = new Bitmap[src.length];
+        Matrix m = new Matrix();
+        m.preScale(-1, 1);
+        for (int i = 0; i < src.length; i++) {
+            Bitmap s = src[i];
+            if (s != null) {
+                out[i] = Bitmap.createBitmap(s, 0, 0, s.getWidth(), s.getHeight(), m, false);
+            } else {
+                out[i] = null;
+            }
+        }
+        return out;
     }
 
     private Bitmap createPlaceholderBitmap(int w, int h) {
@@ -315,17 +405,33 @@ public class UsagiView extends View {
 
         // 处理正在进行的移动
         if (isMoving) {
+            // 如果已吸附在墙上，结束强制移动
+            if (posState == PositionState.WALL_LEFT || posState == PositionState.WALL_RIGHT) {
+                isMoving = false;
+                vx = 0;
+                moveSpeed = 0;
+                lastMoveDirection = Direction.NONE;
+                animState = AnimationState.IDLE;
+                return;
+            }
+
             // 计算已经移动的距离
             float distanceMoved = Math.abs(x - moveStartX);
-            
-            // 如果还没到目标距离，继续移动
+
+            // 如果还没到目标距离，继续移动，且保持速度以抵消空气阻力
             if (distanceMoved < targetMoveDistance) {
-                // 保持当前移动方向和速度
+                if (Math.abs(vx) < Math.abs(moveSpeed) * 0.6f) {
+                    // 如果速度被空气阻力减太多，则补回到移动速度的一个比例
+                    vx = (moveSpeed >= 0) ? Math.abs(moveSpeed) : -Math.abs(moveSpeed);
+                }
+                // 保持移动状态，等待完成
                 return;
             } else {
                 // 已达到目标距离，结束移动
                 isMoving = false;
                 vx = 0;
+                moveSpeed = 0;
+                lastMoveDirection = Direction.NONE;
                 animState = AnimationState.IDLE;
             }
         }
@@ -350,12 +456,15 @@ public class UsagiView extends View {
                     if (posState == PositionState.FLOOR || posState == PositionState.CEILING) {
                         // 随机决定移动方向
                         boolean moveRight = random.nextBoolean();
-                        vx = moveRight ? speed : -speed;
-                        
+                        // 将移动速度与方向记录下来，确保在移动过程中保持并驱动贴图方向
+                        moveSpeed = moveRight ? speed : -speed;
+                        vx = moveSpeed;
+                        lastMoveDirection = moveRight ? Direction.RIGHT : Direction.LEFT;
+
                         // 设置强制移动标志和参数
                         isMoving = true;
                         moveStartX = x;
-                        targetMoveDistance = screenWidth * 0.5f; // 至少移动0.5个屏幕宽度
+                        targetMoveDistance = Math.max(screenWidth * 0.5f, screenWidth * 0.5f); // 至少移动0.5个屏幕宽度
                     } else if (posState == PositionState.WALL_LEFT || posState == PositionState.WALL_RIGHT) {
                         vy = speed; // 沿墙上下爬
                     }
@@ -400,6 +509,14 @@ public class UsagiView extends View {
 
     private void updateAnimation() {
         long now = System.currentTimeMillis();
+
+        // 如果动画状态发生变化，重置帧索引以确保动画从第一帧开始循环
+        if (prevAnimState != animState) {
+            currentFrameIndex = 0;
+            lastFrameTime = now;
+            prevAnimState = animState;
+        }
+
         if (now - lastFrameTime > frameInterval) {
             lastFrameTime = now;
             currentFrameIndex++;
@@ -421,13 +538,27 @@ public class UsagiView extends View {
             case ACTION_1:
             case ACTION_2: return idleFrames; // 暂时复用
             case MOVE:
-                if (posState == PositionState.WALL_LEFT || posState == PositionState.WALL_RIGHT || posState == PositionState.CEILING) {
-                    return wallFrames; // 爬行图
+                // 爬墙/天花板使用对应帧（修正：靠左吸附使用右侧贴图，靠右吸附使用左侧贴图，以匹配素材方向）
+                if (posState == PositionState.WALL_LEFT) return (wallRightFrames != null) ? wallRightFrames : wallLeftFrames;
+                if (posState == PositionState.WALL_RIGHT) return (wallLeftFrames != null) ? wallLeftFrames : wallRightFrames;
+                if (posState == PositionState.CEILING) return ceilFrames;
+                // 地面行走：根据最近行走方向选择帧
+                // 如果没有明确的 lastMoveDirection，则基于当前 vx 作为后备检测
+                Direction effectiveDir = lastMoveDirection;
+                if (effectiveDir == Direction.NONE) {
+                    if (vx < 0) effectiveDir = Direction.LEFT;
+                    else if (vx > 0) effectiveDir = Direction.RIGHT;
                 }
-                return walkFrames; // 专门的走路图
+                // 注意：修正映射 —— 若素材命名/朝向导致左右贴图对调，这里通过交换选择来修正（左走使用 walkRightFrames，右走使用 walkLeftFrames）
+                if (effectiveDir == Direction.LEFT) return (walkRightFrames != null) ? walkRightFrames : walkLeftFrames;
+                if (effectiveDir == Direction.RIGHT) return (walkLeftFrames != null) ? walkLeftFrames : walkRightFrames;
+                // 回退
+                return walkRightFrames != null ? walkRightFrames : walkLeftFrames;
             default: // IDLE
                 if (posState == PositionState.CEILING) return ceilFrames;
-                if (posState == PositionState.WALL_LEFT || posState == PositionState.WALL_RIGHT) return wallFrames;
+                // 修正墙面贴图映射：左墙显示右侧贴图，右墙显示左侧贴图
+                if (posState == PositionState.WALL_LEFT) return (wallRightFrames != null) ? wallRightFrames : wallLeftFrames;
+                if (posState == PositionState.WALL_RIGHT) return (wallLeftFrames != null) ? wallLeftFrames : wallRightFrames;
                 return idleFrames;
         }
     }
@@ -453,29 +584,7 @@ public class UsagiView extends View {
         if (bitmap != null) {
             canvas.save();
 
-            // 根据位置进行旋转
-            float pivotX = characterWidth / 2f;
-            float pivotY = characterHeight / 2f;
-
-            if (posState == PositionState.CEILING) {
-                // 天花板：倒转
-                canvas.rotate(180, pivotX, pivotY);
-            } else if (posState == PositionState.WALL_LEFT) {
-                // 左墙：顺时针90度
-                canvas.rotate(90, pivotX, pivotY);
-            } else if (posState == PositionState.WALL_RIGHT) {
-                // 右墙：逆时针90度
-                canvas.rotate(-90, pivotX, pivotY);
-            }
-
-            // 根据移动方向反转贴图
-            if (posState == PositionState.FLOOR || posState == PositionState.CEILING) {
-                if (vx < 0) {
-                    // 向左走，反转贴图
-                    canvas.scale(-1, 1, pivotX, pivotY);
-                }
-                // 向右走不需要反转，正常绘制
-            }
+            // 已移除所有基于位置的旋转，贴图方向由左右贴图区分处理
 
             // 绘制图片
             canvas.drawBitmap(bitmap, 0, 0, new Paint());
@@ -494,6 +603,9 @@ public class UsagiView extends View {
                 lastTouchX = rawX;
                 lastTouchY = rawY;
                 lastTouchTime = System.currentTimeMillis();
+                // 记录触点相对于视图左上角的偏移，拖拽时用它保持手指与视图的相对位置一致
+                dragOffsetX = rawX - x;
+                dragOffsetY = rawY - y;
                 vx = 0;
                 vy = 0;
                 playRandomSound();
@@ -501,7 +613,7 @@ public class UsagiView extends View {
 
             case MotionEvent.ACTION_MOVE:
                 if (isDragging) {
-                    // 计算瞬时速度（用于投掷）
+                    // 计算瞬时速度（用于投掷），使用原始触点差值以保留手感
                     long now = System.currentTimeMillis();
                     float dt = now - lastTouchTime;
                     if (dt > 0) {
@@ -510,8 +622,9 @@ public class UsagiView extends View {
                         lastTouchTime = now;
                     }
 
-                    x = rawX;
-                    y = rawY;
+                    // 使用触点偏移来设置视图左上角坐标，这样触点位置与视图内部位置一致，避免贴边判断偏移
+                    x = rawX - dragOffsetX;
+                    y = rawY - dragOffsetY;
 
                     // 拖拽时脱离吸附状态
                     if (posState != PositionState.AIR) {
@@ -546,14 +659,20 @@ public class UsagiView extends View {
 
     // 辅助：手动检测吸附（用于拖拽后低速释放）
     private void checkEdgeAdhere() {
-        if (y >= screenHeight - characterHeight - 20) {
+        // 使用更严格的边缘判定（接近实际屏幕边缘），并在吸附时把坐标钳位到边缘，避免出现可见间距
+        final float EPS = 1f;
+        if (y >= screenHeight - characterHeight - EPS) {
             posState = PositionState.FLOOR;
-        } else if (y <= 20) {
+            y = screenHeight - characterHeight; // 钳位
+        } else if (y <= EPS) {
             posState = PositionState.CEILING;
-        } else if (x <= 20) {
+            y = 0;
+        } else if (x <= EPS) {
             posState = PositionState.WALL_LEFT;
-        } else if (x >= screenWidth - characterWidth - 20) {
+            x = 0;
+        } else if (x >= screenWidth - characterWidth - EPS) {
             posState = PositionState.WALL_RIGHT;
+            x = screenWidth - characterWidth;
         } else {
             posState = PositionState.AIR;
         }

@@ -4,180 +4,36 @@
         "source": "com.example.usagi.app-main-37:/xml/data_extraction_rules.xml"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime3.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime3.png"
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_stand_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/stand_1.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime25.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime25.png"
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_climb_onright1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/climb_onright1.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_walk_toright2.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/walk_toright2.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_ceil_toright2.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/ceil_toright2.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_pinch_left_1.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/pinch_left_1.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime33.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime33.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime14.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime14.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_climb_3.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/climb_3.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime17.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime17.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime36.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime36.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_walk_1.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/walk_1.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_ceil_2.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/ceil_2.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/raw_sound_double.wav.flat",
-        "source": "com.example.usagi.app-main-37:/raw/sound_double.wav"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime10.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime10.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_tip_1.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/tip_1.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/xml_backup_rules.xml.flat",
-        "source": "com.example.usagi.app-main-37:/xml/backup_rules.xml"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime44.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime44.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime26.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime26.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime45.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime45.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_tip_2.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/tip_2.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime32.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime32.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime39.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime39.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/layout_activity_main.xml.flat",
-        "source": "com.example.usagi.app-main-37:/layout/activity_main.xml"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime13.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime13.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_bounce_1.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/bounce_1.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_pinch_left_2.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/pinch_left_2.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_ceil_3.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/ceil_3.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime41.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime41.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime7.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime7.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime35.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime35.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime22.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime22.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime16.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime16.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/raw_sound_5.wav.flat",
-        "source": "com.example.usagi.app-main-37:/raw/sound_5.wav"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime29.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime29.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_pinch_right_1.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/pinch_right_1.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime4.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime4.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime31.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime31.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_stand_1.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/stand_1.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime12.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime12.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime19.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime19.png"
-    },
-    {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_pinch_left_3.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/pinch_left_3.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime1.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime1.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime42.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime42.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime46.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime46.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime27.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime27.png"
-    },
-    {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_creep_2.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/creep_2.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_climb_3.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/climb_3.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_climb_2.png.flat",
@@ -188,56 +44,48 @@
         "source": "com.example.usagi.app-main-37:/drawable/twist_1.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime23.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime23.png"
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_walk_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/walk_1.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/raw_start.wav.flat",
-        "source": "com.example.usagi.app-main-37:/raw/start.wav"
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_climb_onright3.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/climb_onright3.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime8.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime8.png"
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_ceil_2.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/ceil_2.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_pinch_right_2.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/pinch_right_2.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime20.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime20.png"
-    },
-    {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_jump_1.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/jump_1.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime5.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime5.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime38.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime38.png"
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_tip_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/tip_1.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_fall_1.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/fall_1.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/raw_sit.wav.flat",
-        "source": "com.example.usagi.app-main-37:/raw/sit.wav"
+        "merged": "com.example.usagi.app-merged_res-35:/xml_backup_rules.xml.flat",
+        "source": "com.example.usagi.app-main-37:/xml/backup_rules.xml"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime2.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime2.png"
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_tip_2.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/tip_2.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime30.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime30.png"
+        "merged": "com.example.usagi.app-merged_res-35:/layout_activity_main.xml.flat",
+        "source": "com.example.usagi.app-main-37:/layout/activity_main.xml"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime28.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime28.png"
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_walk_toright1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/walk_toright1.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_sit_1.png.flat",
@@ -248,44 +96,36 @@
         "source": "com.example.usagi.app-main-37:/drawable/creep_1.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime15.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime15.png"
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_ceil_toright3.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/ceil_toright3.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime21.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime21.png"
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_bounce_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/bounce_1.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_pinch_left_2.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/pinch_left_2.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_twist_2.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/twist_2.png"
     },
     {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_ceil_3.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/ceil_3.png"
+    },
+    {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_pinch_right_3.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/pinch_right_3.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime34.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime34.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime18.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime18.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime6.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime6.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime40.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime40.png"
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_climb_onright2.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/climb_onright2.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/layout_activity_settings.xml.flat",
         "source": "com.example.usagi.app-main-37:/layout/activity_settings.xml"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime24.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime24.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_bounce_2.png.flat",
@@ -300,24 +140,16 @@
         "source": "com.example.usagi.app-main-37:/drawable/ceil_1.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime43.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime43.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime11.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime11.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime9.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime9.png"
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_pinch_right_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/pinch_right_1.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/drawable_climb_1.png.flat",
         "source": "com.example.usagi.app-main-37:/drawable/climb_1.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_shime37.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/shime37.png"
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_ceil_toright1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/ceil_toright1.png"
     },
     {
         "merged": "com.example.usagi.app-merged_res-35:/raw_wu_ya_yi_ha_none.wav.flat",
