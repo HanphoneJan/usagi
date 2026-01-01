@@ -135,15 +135,24 @@ public class UsagiView extends View {
         screenWidth = metrics.widthPixels;
         screenHeight = metrics.heightPixels;
 
-        // 初始位置：屏幕中央上方，避免直接吸附到天花板
+        // 初始位置：屏幕正中央，从屏幕中心开始
         characterWidth = 128;
         characterHeight = 128;
         x = screenWidth / 2 - characterWidth / 2;
-        y = -characterHeight * 2; // 从屏幕外更远的位置开始
+        y = screenHeight / 2 - characterHeight / 2;
         vx = 0;
-        vy = 3; // 初始下落速度
+        vy = 0; // 初始无速度
 
         loadResources();
+        // 立即更新窗口位置到屏幕中央
+        if (layoutParams == null) {
+            layoutParams = (WindowManager.LayoutParams) getLayoutParams();
+        }
+        if (layoutParams != null) {
+            layoutParams.x = (int) x;
+            layoutParams.y = (int) y;
+            windowManager.updateViewLayout(this, layoutParams);
+        }
         startGameLoop();
     }
 

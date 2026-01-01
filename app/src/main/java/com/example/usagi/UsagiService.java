@@ -46,10 +46,10 @@ public class UsagiService extends Service {
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 PixelFormat.TRANSLUCENT
         );
-        // 设置初始位置
+        // 设置初始位置：屏幕正中央
         params.gravity = Gravity.TOP | Gravity.START;
-        params.x = 0;
-        params.y = 100;
+        params.x = 0; // 由 UsagiView 内部计算并更新
+        params.y = 0; // 由 UsagiView 内部计算并更新
         // 添加View到窗口
         windowManager.addView(usagiView, params);
     }
