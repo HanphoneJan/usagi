@@ -47,7 +47,10 @@ public class UsagiView extends View {
         IDLE,       // 待机 (对应各位置的静止)
         MOVE,       // 移动 (对应各位置的爬行/行走)
         FALL,       // 下落
-        ACTION_1,   // 动作1 (例如：扭动)
+        CREEP,      // 吸附在地面（爬行姿态）
+        TWIST,      // 在地面上转身一圈（站立状态触发）
+        TIP,        // 在地面上脚交叉站立
+        ACTION_1,   // 动作1 (例如：夹取)
         ACTION_2    // 动作2 (例如：夹取)
     }
 
@@ -72,6 +75,9 @@ public class UsagiView extends View {
     private Bitmap[] fallFrames;    // 下落
     private Bitmap[] wallFrames;   // 墙壁吸附
     private Bitmap[] ceilFrames;   // 天花板吸附
+    private Bitmap[] creepFrames;   // 地面爬行
+    private Bitmap[] twistFrames;   // 转身一圈
+    private Bitmap[] tipFrames;     // 脚交叉站立
     private SoundPool soundPool;
     private List<Integer> soundIds;
     private Random random = new Random();
@@ -129,13 +135,13 @@ public class UsagiView extends View {
         screenWidth = metrics.widthPixels;
         screenHeight = metrics.heightPixels;
 
-        // 初始位置：屏幕上方
+        // 初始位置：屏幕中央上方，避免直接吸附到天花板
         characterWidth = 128;
         characterHeight = 128;
         x = screenWidth / 2 - characterWidth / 2;
-        y = -characterHeight;
+        y = -characterHeight * 2; // 从屏幕外更远的位置开始
         vx = 0;
-        vy = 2; // 初始微弱下落
+        vy = 3; // 初始下落速度
 
         loadResources();
         startGameLoop();
@@ -168,6 +174,11 @@ public class UsagiView extends View {
         // 下落、天花板、墙的贴图
         fallFrames = loadFramesIfExists(new String[]{"fall_1"}, packageName);
         ceilFrames = loadFramesIfExists(new String[]{"ceil_1", "ceil_2"}, packageName);
+        
+        // 特殊动作贴图
+        creepFrames = loadFramesIfExists(new String[]{"creep_1", "creep_2"}, packageName);
+        twistFrames = loadFramesIfExists(new String[]{"twist_1", "twist_2", "twist_3", "twist_4"}, packageName);
+        tipFrames = loadFramesIfExists(new String[]{"tip_1"}, packageName);
 
         // 墙面优先区分左右
         wallLeftFrames = loadFramesIfExists(new String[]{"climb_left_1", "climb_left_2"}, packageName);
@@ -199,6 +210,9 @@ public class UsagiView extends View {
             wallRightFrames = new Bitmap[]{placeholder};
             wallLeftFrames = flipBitmaps(wallRightFrames);
         }
+        if (creepFrames == null) creepFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        if (twistFrames == null) twistFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        if (tipFrames == null) tipFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
 
         // 初始化声音
         AudioAttributes audioAttributes = new AudioAttributes.Builder()
@@ -322,13 +336,12 @@ public class UsagiView extends View {
                 playSound("bounce");
                 triggerImpact();
             } else {
-                vy = 0;
+                // 保持动画状态，如果是MOVE则继续播放动画
+                if (animState != AnimationState.MOVE && animState != AnimationState.FALL) {
+                    vy = 0;
+                }
                 if (posState != PositionState.FLOOR) {
                     posState = PositionState.FLOOR;
-                    // 保持当前动画状态，如果是MOVE则继续播放动画
-                    if (animState != AnimationState.MOVE && animState != AnimationState.FALL) {
-                        animState = AnimationState.IDLE;
-                    }
                     playSound("land");
                 }
             }
@@ -340,13 +353,12 @@ public class UsagiView extends View {
                 vy = -vy * BOUNCE_DAMPING; // 反弹
                 triggerImpact();
             } else {
-                vy = 0;
+                // 保持动画状态，如果是MOVE则继续播放动画
+                if (animState != AnimationState.MOVE && animState != AnimationState.FALL) {
+                    vy = 0;
+                }
                 if (posState != PositionState.CEILING) {
                     posState = PositionState.CEILING;
-                    // 保持当前动画状态，如果是MOVE则继续播放动画
-                    if (animState != AnimationState.MOVE && animState != AnimationState.FALL) {
-                        animState = AnimationState.IDLE;
-                    }
                     playSound("land");
                 }
             }
@@ -368,14 +380,13 @@ public class UsagiView extends View {
                 vx = -vx * BOUNCE_DAMPING;
                 triggerImpact();
             } else {
-                vx = 0;
+                // 保持动画状态，如果是MOVE则继续播放动画
+                if (animState != AnimationState.MOVE && animState != AnimationState.FALL) {
+                    vx = 0;
+                }
                 // 优化：当走到左边缘时，切换到左墙状态
                 if (posState != PositionState.WALL_LEFT) {
                     posState = PositionState.WALL_LEFT;
-                    // 保持当前动画状态，如果是MOVE则继续播放动画
-                    if (animState != AnimationState.MOVE && animState != AnimationState.FALL) {
-                        animState = AnimationState.IDLE;
-                    }
                     playSound("climb");
                 }
             }
@@ -387,14 +398,13 @@ public class UsagiView extends View {
                 vx = -vx * BOUNCE_DAMPING;
                 triggerImpact();
             } else {
-                vx = 0;
+                // 保持动画状态，如果是MOVE则继续播放动画
+                if (animState != AnimationState.MOVE && animState != AnimationState.FALL) {
+                    vx = 0;
+                }
                 // 优化：当走到右边缘时，切换到右墙状态
                 if (posState != PositionState.WALL_RIGHT) {
                     posState = PositionState.WALL_RIGHT;
-                    // 保持当前动画状态，如果是MOVE则继续播放动画
-                    if (animState != AnimationState.MOVE && animState != AnimationState.FALL) {
-                        animState = AnimationState.IDLE;
-                    }
                     playSound("climb");
                 }
             }
@@ -452,8 +462,32 @@ public class UsagiView extends View {
 
         // 处理正在进行的移动
         if (isMoving) {
-            // 墙壁或天花板的垂直移动
-            if (posState == PositionState.WALL_LEFT || posState == PositionState.WALL_RIGHT || posState == PositionState.CEILING) {
+            // 天花板的水平移动
+            if (posState == PositionState.CEILING) {
+                // 计算已经移动的距离
+                float distanceMoved = Math.abs(x - moveStartX);
+
+                // 如果还没到目标距离，继续移动，且保持速度以抵消空气阻力
+                if (distanceMoved < targetMoveDistance) {
+                    if (Math.abs(vx) < Math.abs(moveSpeed) * 0.6f) {
+                        // 如果速度被空气阻力减太多，则补回到移动速度的一个比例
+                        vx = (moveSpeed >= 0) ? Math.abs(moveSpeed) : -Math.abs(moveSpeed);
+                    }
+                    // 保持移动状态，等待完成
+                    return;
+                } else {
+                    // 已达到目标距离，结束移动
+                    isMoving = false;
+                    vx = 0;
+                    moveSpeed = 0;
+                    lastMoveDirection = Direction.NONE;
+                    animState = AnimationState.IDLE;
+                }
+                return;
+            }
+
+            // 墙壁的垂直移动
+            if (posState == PositionState.WALL_LEFT || posState == PositionState.WALL_RIGHT) {
                 // 计算已经移动的距离
                 float distanceMoved = Math.abs(y - moveStartY);
 
@@ -546,18 +580,51 @@ public class UsagiView extends View {
                         targetMoveDistance = screenWidth * 0.5f;
                     }
                 } else {
-                    // 特殊动作 (扭动等)
-                    animState = AnimationState.ACTION_1;
-                    playRandomSound();
-                    // 动作结束后停止速度
-                    new Handler().postDelayed(() -> {
-                        if (!isDragging && posState != PositionState.AIR) {
+                    // 特殊动作：根据当前位置选择
+                    if (posState == PositionState.FLOOR && animState == AnimationState.IDLE) {
+                        // 在地面站立时，可以选择转身或脚交叉
+                        int floorAction = random.nextInt(3);
+                        if (floorAction == 0) {
+                            // 转身一圈
+                            animState = AnimationState.TWIST;
+                            playRandomSound();
+                            new Handler().postDelayed(() -> {
+                                if (!isDragging && posState == PositionState.FLOOR) {
+                                    animState = AnimationState.IDLE;
+                                    vx = 0;
+                                    vy = 0;
+                                }
+                            }, 2000); // 转身需要2秒
+                        } else if (floorAction == 1) {
+                            // 脚交叉站立
+                            animState = AnimationState.TIP;
+                            playRandomSound();
+                            new Handler().postDelayed(() -> {
+                                if (!isDragging && posState == PositionState.FLOOR) {
+                                    animState = AnimationState.IDLE;
+                                    vx = 0;
+                                    vy = 0;
+                                }
+                            }, 1500); // 脚交叉需要1.5秒
+                        } else {
+                            // 转换为爬行状态
+                            animState = AnimationState.CREEP;
                             vx = 0;
                             vy = 0;
-                            animState = AnimationState.IDLE;
-                            isMoving = false;
                         }
-                    }, 1000);
+                    } else {
+                        // 其他位置执行通用动作
+                        animState = AnimationState.ACTION_1;
+                        playRandomSound();
+                        new Handler().postDelayed(() -> {
+                            if (!isDragging && posState != PositionState.AIR) {
+                                vx = 0;
+                                vy = 0;
+                                animState = AnimationState.IDLE;
+                                isMoving = false;
+                            }
+                        }, 1000);
+                    }
                 }
             }
         }
@@ -649,6 +716,12 @@ public class UsagiView extends View {
         if (animState == AnimationState.MOVE) {
             shouldAnimate = true;
         }
+        // 特殊动作状态也播放动画
+        else if (animState == AnimationState.CREEP || 
+                 animState == AnimationState.TWIST || 
+                 animState == AnimationState.TIP) {
+            shouldAnimate = true;
+        }
         // 如果是待机状态但在吸附位置，且没有移动，则保持第一帧
         else if (animState == AnimationState.IDLE) {
             shouldAnimate = false;
@@ -685,6 +758,9 @@ public class UsagiView extends View {
         // 优先根据动画状态选图，如果没有特定动画图，回退到位置图
         switch (animState) {
             case FALL: return fallFrames;
+            case CREEP: return creepFrames;
+            case TWIST: return twistFrames;
+            case TIP: return tipFrames;
             case ACTION_1:
             case ACTION_2: return idleFrames; // 暂时复用
             case MOVE:
@@ -756,12 +832,16 @@ public class UsagiView extends View {
             }
 
             // 竖直方向偏移：行走和站立时向上偏移16px，吸附时多偏移94px
-            if (posState == PositionState.CEILING || posState == PositionState.FLOOR) {
+            if (posState == PositionState.CEILING) {
                 if (animState == AnimationState.MOVE || animState == AnimationState.IDLE) {
-                    drawY = -16; // 行走和站立时向上偏移16px
-                } else if (posState == PositionState.CEILING) {
+                    drawY = -ADHERE_DRAW_OFFSET - 16; // 天花板移动/站立时向上偏移94px+16px
+                } else {
                     drawY = -ADHERE_DRAW_OFFSET; // 天花板吸附时向上偏移94px
-                } else if (posState == PositionState.FLOOR) {
+                }
+            } else if (posState == PositionState.FLOOR) {
+                if (animState == AnimationState.MOVE || animState == AnimationState.IDLE) {
+                    drawY = -16; // 地面行走和站立时向上偏移16px
+                } else {
                     drawY = ADHERE_DRAW_OFFSET; // 地面吸附时向下偏移94px
                 }
             }
