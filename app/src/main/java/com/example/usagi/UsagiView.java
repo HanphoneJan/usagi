@@ -64,7 +64,8 @@ public class UsagiView extends View {
     private AnimationState animState = AnimationState.FALL;
 
     // 资源管理
-    private Bitmap[] idleFrames;    // 地面站立/爬行
+    private Bitmap[] idleFrames;    // 地面站立
+    private Bitmap[] walkFrames;    // 行走动画
     private Bitmap[] fallFrames;    // 下落
     private Bitmap[] wallFrames;   // 墙壁吸附
     private Bitmap[] ceilFrames;   // 天花板吸附
@@ -85,6 +86,9 @@ public class UsagiView extends View {
     // AI 行为控制
     private long lastActionTime = 0;
     private long nextActionInterval = 2000;
+    private boolean isMoving = false; // 标记是否正在进行强制移动
+    private float moveStartX = 0; // 移动起始位置
+    private float targetMoveDistance = 0; // 目标移动距离
 
     // 默认构造
     public UsagiView(Context context) {
@@ -122,7 +126,8 @@ public class UsagiView extends View {
         String packageName = context.getPackageName();
 
         // 这里需要确保 drawable 中有对应的图片，如果找不到会报错，请根据实际素材调整
-        idleFrames = loadFrames(new String[]{"stand_1", "walk_1", "walk_2"}, packageName);
+        idleFrames = loadFrames(new String[]{"stand_1"}, packageName); // 只有站立帧
+        walkFrames = loadFrames(new String[]{"walk_1", "walk_2"}, packageName); // 专门的行走动画帧
         fallFrames = loadFrames(new String[]{"fall_1"}, packageName);
         wallFrames = loadFrames(new String[]{"climb_1", "climb_2"}, packageName); // 假设爬墙用这组
         ceilFrames = loadFrames(new String[]{"ceil_1", "ceil_2"}, packageName);   // 假设天花板用这组
@@ -258,7 +263,8 @@ public class UsagiView extends View {
                 triggerImpact();
             } else {
                 vx = 0;
-                if (posState != PositionState.WALL_LEFT && posState != PositionState.FLOOR && posState != PositionState.CEILING) {
+                // 优化：当走到左边缘时，切换到左墙状态
+                if (posState != PositionState.WALL_LEFT) {
                     posState = PositionState.WALL_LEFT;
                     animState = AnimationState.IDLE;
                     playSound("climb");
@@ -273,7 +279,8 @@ public class UsagiView extends View {
                 triggerImpact();
             } else {
                 vx = 0;
-                if (posState != PositionState.WALL_RIGHT && posState != PositionState.FLOOR && posState != PositionState.CEILING) {
+                // 优化：当走到右边缘时，切换到右墙状态
+                if (posState != PositionState.WALL_RIGHT) {
                     posState = PositionState.WALL_RIGHT;
                     animState = AnimationState.IDLE;
                     playSound("climb");
@@ -306,6 +313,23 @@ public class UsagiView extends View {
     private void updateAI() {
         if (isDragging) return;
 
+        // 处理正在进行的移动
+        if (isMoving) {
+            // 计算已经移动的距离
+            float distanceMoved = Math.abs(x - moveStartX);
+            
+            // 如果还没到目标距离，继续移动
+            if (distanceMoved < targetMoveDistance) {
+                // 保持当前移动方向和速度
+                return;
+            } else {
+                // 已达到目标距离，结束移动
+                isMoving = false;
+                vx = 0;
+                animState = AnimationState.IDLE;
+            }
+        }
+
         long now = System.currentTimeMillis();
         if (now - lastActionTime > nextActionInterval) {
             lastActionTime = now;
@@ -317,15 +341,21 @@ public class UsagiView extends View {
                 if (action < 5) {
                     // 保持静止/微动
                     animState = AnimationState.IDLE;
+                    vx = 0;
                 } else if (action < 8) {
                     // 爬行/走动 (改变速度)
                     animState = AnimationState.MOVE;
                     float speed = 2 + random.nextFloat() * 3;
 
-                    if (posState == PositionState.FLOOR) {
-                        vx = random.nextBoolean() ? speed : -speed;
-                    } else if (posState == PositionState.CEILING) {
-                        vx = random.nextBoolean() ? speed : -speed;
+                    if (posState == PositionState.FLOOR || posState == PositionState.CEILING) {
+                        // 随机决定移动方向
+                        boolean moveRight = random.nextBoolean();
+                        vx = moveRight ? speed : -speed;
+                        
+                        // 设置强制移动标志和参数
+                        isMoving = true;
+                        moveStartX = x;
+                        targetMoveDistance = screenWidth * 0.5f; // 至少移动0.5个屏幕宽度
                     } else if (posState == PositionState.WALL_LEFT || posState == PositionState.WALL_RIGHT) {
                         vy = speed; // 沿墙上下爬
                     }
@@ -339,6 +369,7 @@ public class UsagiView extends View {
                             vx = 0;
                             vy = 0;
                             animState = AnimationState.IDLE;
+                            isMoving = false;
                         }
                     }, 1000);
                 }
@@ -350,7 +381,10 @@ public class UsagiView extends View {
             // 如果撞墙了，AI自动反向
             if (posState == PositionState.FLOOR || posState == PositionState.CEILING) {
                 if ((x <= 0 && vx < 0) || (x >= screenWidth - characterWidth && vx > 0)) {
-                    vx = -vx;
+                    // 已经到边缘，结束移动
+                    isMoving = false;
+                    vx = 0;
+                    animState = AnimationState.IDLE;
                 }
             } else if (posState == PositionState.WALL_LEFT || posState == PositionState.WALL_RIGHT) {
                 // 沿墙爬到头了自动下来
@@ -358,6 +392,7 @@ public class UsagiView extends View {
                     posState = PositionState.AIR; // 放弃吸附，掉下去
                     animState = AnimationState.FALL;
                     vx = (posState == PositionState.WALL_LEFT) ? 2 : -2; // 轻轻推离墙壁
+                    isMoving = false;
                 }
             }
         }
@@ -389,7 +424,7 @@ public class UsagiView extends View {
                 if (posState == PositionState.WALL_LEFT || posState == PositionState.WALL_RIGHT || posState == PositionState.CEILING) {
                     return wallFrames; // 爬行图
                 }
-                return idleFrames; // 走路图
+                return walkFrames; // 专门的走路图
             default: // IDLE
                 if (posState == PositionState.CEILING) return ceilFrames;
                 if (posState == PositionState.WALL_LEFT || posState == PositionState.WALL_RIGHT) return wallFrames;
@@ -431,6 +466,15 @@ public class UsagiView extends View {
             } else if (posState == PositionState.WALL_RIGHT) {
                 // 右墙：逆时针90度
                 canvas.rotate(-90, pivotX, pivotY);
+            }
+
+            // 根据移动方向反转贴图
+            if (posState == PositionState.FLOOR || posState == PositionState.CEILING) {
+                if (vx < 0) {
+                    // 向左走，反转贴图
+                    canvas.scale(-1, 1, pivotX, pivotY);
+                }
+                // 向右走不需要反转，正常绘制
             }
 
             // 绘制图片

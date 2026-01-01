@@ -20,116 +20,119 @@
 16    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 16-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:10:5-77
 16-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:10:22-74
-17
-18    <permission
-18-->[androidx.core:core:1.9.0] C:\Users\beize\.gradle\caches\8.9\transforms\c5de34b7964143a69bc267aa510b2bde\transformed\core-1.9.0\AndroidManifest.xml:22:5-24:47
-19        android:name="com.example.usagi.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
-19-->[androidx.core:core:1.9.0] C:\Users\beize\.gradle\caches\8.9\transforms\c5de34b7964143a69bc267aa510b2bde\transformed\core-1.9.0\AndroidManifest.xml:23:9-81
-20        android:protectionLevel="signature" />
-20-->[androidx.core:core:1.9.0] C:\Users\beize\.gradle\caches\8.9\transforms\c5de34b7964143a69bc267aa510b2bde\transformed\core-1.9.0\AndroidManifest.xml:24:9-44
-21
-22    <uses-permission android:name="com.example.usagi.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
-22-->[androidx.core:core:1.9.0] C:\Users\beize\.gradle\caches\8.9\transforms\c5de34b7964143a69bc267aa510b2bde\transformed\core-1.9.0\AndroidManifest.xml:26:5-97
-22-->[androidx.core:core:1.9.0] C:\Users\beize\.gradle\caches\8.9\transforms\c5de34b7964143a69bc267aa510b2bde\transformed\core-1.9.0\AndroidManifest.xml:26:22-94
-23
-24    <application
-24-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:12:5-43:19
-25        android:allowBackup="false"
-25-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:13:9-36
-26        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
-26-->[androidx.core:core:1.9.0] C:\Users\beize\.gradle\caches\8.9\transforms\c5de34b7964143a69bc267aa510b2bde\transformed\core-1.9.0\AndroidManifest.xml:28:18-86
-27        android:debuggable="true"
-28        android:extractNativeLibs="false"
-29        android:label="@string/app_name"
-29-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:14:9-41
-30        android:supportsRtl="true"
-30-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:15:9-35
-31        android:testOnly="true"
-32        android:theme="@style/Theme.Usagi" >
-32-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:16:9-43
-33
-34        <!-- 主活动 -->
-35        <activity
-35-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:18:9-26:20
-36            android:name="com.example.usagi.MainActivity"
-36-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:19:13-41
-37            android:exported="true" >
-37-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:20:13-36
-38            <intent-filter>
-38-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:21:13-25:29
-39                <action android:name="android.intent.action.MAIN" />
-39-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:22:17-69
-39-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:22:25-66
-40
-41                <category android:name="android.intent.category.LAUNCHER" />
-41-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:24:17-77
-41-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:24:27-74
-42            </intent-filter>
-43        </activity>
-44        <!-- 设置活动 -->
-45        <activity android:name="com.example.usagi.SettingsActivity" />
-45-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:28:9-54
-45-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:28:19-51
-46        <!-- 悬浮窗服务 -->
-47        <service
-47-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:30:9-33:56
-48            android:name="com.example.usagi.UsagiService"
-48-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:31:13-41
-49            android:exported="false"
-49-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:32:13-37
-50            android:foregroundServiceType="dataSync" />
-50-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:33:13-53
-51        <!-- 开机自启广播接收器 -->
-52        <receiver
-52-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:35:9-42:20
-53            android:name="com.example.usagi.BootReceiver"
-53-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:36:13-41
-54            android:enabled="true"
-54-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:38:13-35
-55            android:exported="true" >
-55-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:37:13-36
-56            <intent-filter>
-56-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:39:13-41:29
-57                <action android:name="android.intent.action.BOOT_COMPLETED" />
-57-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:40:17-79
-57-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:40:25-76
-58            </intent-filter>
-59        </receiver>
-60
-61        <provider
-61-->[androidx.emoji2:emoji2:1.2.0] C:\Users\beize\.gradle\caches\8.9\transforms\83da93ad1630f713385fab202b600dcb\transformed\emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
-62            android:name="androidx.startup.InitializationProvider"
-62-->[androidx.emoji2:emoji2:1.2.0] C:\Users\beize\.gradle\caches\8.9\transforms\83da93ad1630f713385fab202b600dcb\transformed\emoji2-1.2.0\AndroidManifest.xml:25:13-67
-63            android:authorities="com.example.usagi.androidx-startup"
-63-->[androidx.emoji2:emoji2:1.2.0] C:\Users\beize\.gradle\caches\8.9\transforms\83da93ad1630f713385fab202b600dcb\transformed\emoji2-1.2.0\AndroidManifest.xml:26:13-68
-64            android:exported="false" >
-64-->[androidx.emoji2:emoji2:1.2.0] C:\Users\beize\.gradle\caches\8.9\transforms\83da93ad1630f713385fab202b600dcb\transformed\emoji2-1.2.0\AndroidManifest.xml:27:13-37
-65            <meta-data
-65-->[androidx.emoji2:emoji2:1.2.0] C:\Users\beize\.gradle\caches\8.9\transforms\83da93ad1630f713385fab202b600dcb\transformed\emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
-66                android:name="androidx.emoji2.text.EmojiCompatInitializer"
-66-->[androidx.emoji2:emoji2:1.2.0] C:\Users\beize\.gradle\caches\8.9\transforms\83da93ad1630f713385fab202b600dcb\transformed\emoji2-1.2.0\AndroidManifest.xml:30:17-75
-67                android:value="androidx.startup" />
-67-->[androidx.emoji2:emoji2:1.2.0] C:\Users\beize\.gradle\caches\8.9\transforms\83da93ad1630f713385fab202b600dcb\transformed\emoji2-1.2.0\AndroidManifest.xml:31:17-49
-68            <meta-data
-68-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\beize\.gradle\caches\8.9\transforms\a9edc8db3cd32fe3748c261685096c18\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:31:13-33:52
-69                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
-69-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\beize\.gradle\caches\8.9\transforms\a9edc8db3cd32fe3748c261685096c18\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:32:17-78
-70                android:value="androidx.startup" />
-70-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\beize\.gradle\caches\8.9\transforms\a9edc8db3cd32fe3748c261685096c18\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:33:17-49
-71        </provider>
-72
-73        <uses-library
-73-->[androidx.window:window:1.0.0] C:\Users\beize\.gradle\caches\8.9\transforms\c44e154c349a9ed8010475591e8d0cd1\transformed\window-1.0.0\AndroidManifest.xml:25:9-27:40
-74            android:name="androidx.window.extensions"
-74-->[androidx.window:window:1.0.0] C:\Users\beize\.gradle\caches\8.9\transforms\c44e154c349a9ed8010475591e8d0cd1\transformed\window-1.0.0\AndroidManifest.xml:26:13-54
-75            android:required="false" />
-75-->[androidx.window:window:1.0.0] C:\Users\beize\.gradle\caches\8.9\transforms\c44e154c349a9ed8010475591e8d0cd1\transformed\window-1.0.0\AndroidManifest.xml:27:13-37
-76        <uses-library
-76-->[androidx.window:window:1.0.0] C:\Users\beize\.gradle\caches\8.9\transforms\c44e154c349a9ed8010475591e8d0cd1\transformed\window-1.0.0\AndroidManifest.xml:28:9-30:40
-77            android:name="androidx.window.sidecar"
-77-->[androidx.window:window:1.0.0] C:\Users\beize\.gradle\caches\8.9\transforms\c44e154c349a9ed8010475591e8d0cd1\transformed\window-1.0.0\AndroidManifest.xml:29:13-51
-78            android:required="false" />
-78-->[androidx.window:window:1.0.0] C:\Users\beize\.gradle\caches\8.9\transforms\c44e154c349a9ed8010475591e8d0cd1\transformed\window-1.0.0\AndroidManifest.xml:30:13-37
-79    </application>
-80
-81</manifest>
+17    <uses-permission android:name="android.permission.VIBRATE" />
+17-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:12:5-66
+17-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:12:22-63
+18
+19    <permission
+19-->[androidx.core:core:1.9.0] C:\Users\beize\.gradle\caches\8.9\transforms\c5de34b7964143a69bc267aa510b2bde\transformed\core-1.9.0\AndroidManifest.xml:22:5-24:47
+20        android:name="com.example.usagi.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+20-->[androidx.core:core:1.9.0] C:\Users\beize\.gradle\caches\8.9\transforms\c5de34b7964143a69bc267aa510b2bde\transformed\core-1.9.0\AndroidManifest.xml:23:9-81
+21        android:protectionLevel="signature" />
+21-->[androidx.core:core:1.9.0] C:\Users\beize\.gradle\caches\8.9\transforms\c5de34b7964143a69bc267aa510b2bde\transformed\core-1.9.0\AndroidManifest.xml:24:9-44
+22
+23    <uses-permission android:name="com.example.usagi.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+23-->[androidx.core:core:1.9.0] C:\Users\beize\.gradle\caches\8.9\transforms\c5de34b7964143a69bc267aa510b2bde\transformed\core-1.9.0\AndroidManifest.xml:26:5-97
+23-->[androidx.core:core:1.9.0] C:\Users\beize\.gradle\caches\8.9\transforms\c5de34b7964143a69bc267aa510b2bde\transformed\core-1.9.0\AndroidManifest.xml:26:22-94
+24
+25    <application
+25-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:14:5-46:19
+26        android:allowBackup="false"
+26-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:15:9-36
+27        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+27-->[androidx.core:core:1.9.0] C:\Users\beize\.gradle\caches\8.9\transforms\c5de34b7964143a69bc267aa510b2bde\transformed\core-1.9.0\AndroidManifest.xml:28:18-86
+28        android:debuggable="true"
+29        android:extractNativeLibs="false"
+30        android:label="@string/app_name"
+30-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:16:9-41
+31        android:supportsRtl="true"
+31-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:17:9-35
+32        android:testOnly="true"
+33        android:theme="@style/Theme.Usagi" >
+33-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:18:9-43
+34
+35        <!-- 主活动 -->
+36        <activity
+36-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:20:9-28:20
+37            android:name="com.example.usagi.MainActivity"
+37-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:21:13-41
+38            android:exported="true" >
+38-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:22:13-36
+39            <intent-filter>
+39-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:23:13-27:29
+40                <action android:name="android.intent.action.MAIN" />
+40-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:24:17-69
+40-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:24:25-66
+41
+42                <category android:name="android.intent.category.LAUNCHER" />
+42-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:26:17-77
+42-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:26:27-74
+43            </intent-filter>
+44        </activity>
+45        <!-- 设置活动 -->
+46        <activity android:name="com.example.usagi.SettingsActivity" />
+46-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:30:9-54
+46-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:30:19-51
+47        <!-- 悬浮窗服务 -->
+48        <service
+48-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:32:9-36:58
+49            android:name="com.example.usagi.UsagiService"
+49-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:33:13-41
+50            android:exported="false"
+50-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:34:13-37
+51            android:foregroundServiceType="dataSync" />
+51-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:35:13-53
+52        <!-- 开机自启广播接收器 -->
+53        <receiver
+53-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:38:9-45:20
+54            android:name="com.example.usagi.BootReceiver"
+54-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:39:13-41
+55            android:enabled="true"
+55-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:41:13-35
+56            android:exported="true" >
+56-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:40:13-36
+57            <intent-filter>
+57-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:42:13-44:29
+58                <action android:name="android.intent.action.BOOT_COMPLETED" />
+58-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:43:17-79
+58-->E:\develop_project\usagi\app\src\main\AndroidManifest.xml:43:25-76
+59            </intent-filter>
+60        </receiver>
+61
+62        <provider
+62-->[androidx.emoji2:emoji2:1.2.0] C:\Users\beize\.gradle\caches\8.9\transforms\83da93ad1630f713385fab202b600dcb\transformed\emoji2-1.2.0\AndroidManifest.xml:24:9-32:20
+63            android:name="androidx.startup.InitializationProvider"
+63-->[androidx.emoji2:emoji2:1.2.0] C:\Users\beize\.gradle\caches\8.9\transforms\83da93ad1630f713385fab202b600dcb\transformed\emoji2-1.2.0\AndroidManifest.xml:25:13-67
+64            android:authorities="com.example.usagi.androidx-startup"
+64-->[androidx.emoji2:emoji2:1.2.0] C:\Users\beize\.gradle\caches\8.9\transforms\83da93ad1630f713385fab202b600dcb\transformed\emoji2-1.2.0\AndroidManifest.xml:26:13-68
+65            android:exported="false" >
+65-->[androidx.emoji2:emoji2:1.2.0] C:\Users\beize\.gradle\caches\8.9\transforms\83da93ad1630f713385fab202b600dcb\transformed\emoji2-1.2.0\AndroidManifest.xml:27:13-37
+66            <meta-data
+66-->[androidx.emoji2:emoji2:1.2.0] C:\Users\beize\.gradle\caches\8.9\transforms\83da93ad1630f713385fab202b600dcb\transformed\emoji2-1.2.0\AndroidManifest.xml:29:13-31:52
+67                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+67-->[androidx.emoji2:emoji2:1.2.0] C:\Users\beize\.gradle\caches\8.9\transforms\83da93ad1630f713385fab202b600dcb\transformed\emoji2-1.2.0\AndroidManifest.xml:30:17-75
+68                android:value="androidx.startup" />
+68-->[androidx.emoji2:emoji2:1.2.0] C:\Users\beize\.gradle\caches\8.9\transforms\83da93ad1630f713385fab202b600dcb\transformed\emoji2-1.2.0\AndroidManifest.xml:31:17-49
+69            <meta-data
+69-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\beize\.gradle\caches\8.9\transforms\a9edc8db3cd32fe3748c261685096c18\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:31:13-33:52
+70                android:name="androidx.lifecycle.ProcessLifecycleInitializer"
+70-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\beize\.gradle\caches\8.9\transforms\a9edc8db3cd32fe3748c261685096c18\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:32:17-78
+71                android:value="androidx.startup" />
+71-->[androidx.lifecycle:lifecycle-process:2.4.1] C:\Users\beize\.gradle\caches\8.9\transforms\a9edc8db3cd32fe3748c261685096c18\transformed\lifecycle-process-2.4.1\AndroidManifest.xml:33:17-49
+72        </provider>
+73
+74        <uses-library
+74-->[androidx.window:window:1.0.0] C:\Users\beize\.gradle\caches\8.9\transforms\c44e154c349a9ed8010475591e8d0cd1\transformed\window-1.0.0\AndroidManifest.xml:25:9-27:40
+75            android:name="androidx.window.extensions"
+75-->[androidx.window:window:1.0.0] C:\Users\beize\.gradle\caches\8.9\transforms\c44e154c349a9ed8010475591e8d0cd1\transformed\window-1.0.0\AndroidManifest.xml:26:13-54
+76            android:required="false" />
+76-->[androidx.window:window:1.0.0] C:\Users\beize\.gradle\caches\8.9\transforms\c44e154c349a9ed8010475591e8d0cd1\transformed\window-1.0.0\AndroidManifest.xml:27:13-37
+77        <uses-library
+77-->[androidx.window:window:1.0.0] C:\Users\beize\.gradle\caches\8.9\transforms\c44e154c349a9ed8010475591e8d0cd1\transformed\window-1.0.0\AndroidManifest.xml:28:9-30:40
+78            android:name="androidx.window.sidecar"
+78-->[androidx.window:window:1.0.0] C:\Users\beize\.gradle\caches\8.9\transforms\c44e154c349a9ed8010475591e8d0cd1\transformed\window-1.0.0\AndroidManifest.xml:29:13-51
+79            android:required="false" />
+79-->[androidx.window:window:1.0.0] C:\Users\beize\.gradle\caches\8.9\transforms\c44e154c349a9ed8010475591e8d0cd1\transformed\window-1.0.0\AndroidManifest.xml:30:13-37
+80    </application>
+81
+82</manifest>
