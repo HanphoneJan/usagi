@@ -8,7 +8,10 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.media.AudioAttributes;
 import android.media.SoundPool;
+import android.util.Log;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.AttributeSet;
@@ -35,6 +38,7 @@ public class UsagiView extends View {
     private static final float EDGE_SNAP_EPS = 6f;      // 靠边自动吸附的阈值（像素）
     private static final int ADHERE_DRAW_OFFSET = 94;   // 吸附时贴图的绘制偏移（像素）
     private static final int THROW_THRESHOLD = 5;       // 判定为投掷的最小速度
+    private static final String TAG = "UsagiView";
 
     // 状态枚举
     private enum PositionState {
@@ -89,6 +93,14 @@ public class UsagiView extends View {
     private long lastSoundPlayTime = 0;
     private static final long SOUND_MIN_INTERVAL_MS = 300; // ms
     private Random random = new Random();
+
+    // 后台线程：游戏循环、资源加载、音效播放
+    private HandlerThread gameThread;
+    private Handler gameHandler;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private static final long GAME_FRAME_MS = 16; // ~60 FPS
+    private volatile boolean isRunning = false;
+    private volatile boolean resourcesLoaded = false;
 
     // 定时播放控制
     private long nextScheduledSoundTime = 0;
@@ -156,7 +168,8 @@ public class UsagiView extends View {
         vx = 0;
         vy = 0; // 初始无速度
 
-        loadResources();
+        startGameLoop();
+        loadResourcesAsync();
         // 初始化定时播放
         scheduleNextSound();
         // 立即更新窗口位置到屏幕中央
@@ -248,6 +261,24 @@ public class UsagiView extends View {
                 .setAudioAttributes(audioAttributes)
                 .build();
 
+        // 监听加载结果：若加载失败（status != 0），从列表中剔除该样本并记录日志
+        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool sp, int sampleId, int status) {
+                if (status != 0) {
+                    Log.w(TAG, "SoundPool failed to load sampleId=" + sampleId + " status=" + status);
+                    if (soundIds != null) soundIds.remove(Integer.valueOf(sampleId));
+                    if (soundNameToId != null) {
+                        List<String> toRemove = new ArrayList<>();
+                        for (Map.Entry<String, Integer> e : soundNameToId.entrySet()) {
+                            if (e.getValue() == sampleId) toRemove.add(e.getKey());
+                        }
+                        for (String k : toRemove) soundNameToId.remove(k);
+                    }
+                }
+            }
+        });
+
         soundIds = new ArrayList<>();
         soundNameToId = new HashMap<>();
         try {
@@ -258,9 +289,31 @@ public class UsagiView extends View {
                 String name = f.getName();
                 int resId = getResources().getIdentifier(name, "raw", packageName);
                 if (resId != 0) {
-                    int spId = soundPool.load(context, resId, 1);
-                    soundIds.add(spId);
-                    soundNameToId.put(name, spId);
+                    // 先检测文件头，尽量只加载常见容器（WAV/OGG/FLAC/MP3），避免将未知裸 PCM 等不带头的文件交给解码器
+                    boolean ok = false;
+                    java.io.InputStream is = null;
+                    try {
+                        is = getResources().openRawResource(resId);
+                        byte[] header = new byte[12];
+                        int read = is.read(header);
+                        if (read >= 4) {
+                            String s = new String(header, 0, Math.min(read, 12));
+                            if (s.startsWith("RIFF") || s.startsWith("OggS") || s.startsWith("fLaC") || s.startsWith("ID3") || (header[0] == (byte)0xFF)) {
+                                ok = true;
+                            }
+                        }
+                    } catch (Exception ex) {
+                        Log.w(TAG, "Error reading header for raw resource: " + name, ex);
+                    } finally {
+                        if (is != null) try { is.close(); } catch (Exception ignored) {}
+                    }
+                    if (!ok) {
+                        Log.w(TAG, "Skipping raw resource without known audio header: " + name + " (resId=" + resId + ")");
+                    } else {
+                        int spId = soundPool.load(context, resId, 1);
+                        soundIds.add(spId);
+                        soundNameToId.put(name, spId);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -269,9 +322,30 @@ public class UsagiView extends View {
             for (String s : sounds) {
                 int id = getResources().getIdentifier(s, "raw", packageName);
                 if (id > 0) {
-                    int spId = soundPool.load(context, id, 1);
-                    soundIds.add(spId);
-                    soundNameToId.put(s, spId);
+                    boolean ok = false;
+                    java.io.InputStream is = null;
+                    try {
+                        is = getResources().openRawResource(id);
+                        byte[] header = new byte[12];
+                        int read = is.read(header);
+                        if (read >= 4) {
+                            String ss = new String(header, 0, Math.min(read, 12));
+                            if (ss.startsWith("RIFF") || ss.startsWith("OggS") || ss.startsWith("fLaC") || ss.startsWith("ID3") || (header[0] == (byte)0xFF)) {
+                                ok = true;
+                            }
+                        }
+                    } catch (Exception ex) {
+                        Log.w(TAG, "Error reading header for raw resource: " + s, ex);
+                    } finally {
+                        if (is != null) try { is.close(); } catch (Exception ignored) {}
+                    }
+                    if (!ok) {
+                        Log.w(TAG, "Skipping raw resource without known audio header: " + s + " (resId=" + id + ")");
+                    } else {
+                        int spId = soundPool.load(context, id, 1);
+                        soundIds.add(spId);
+                        soundNameToId.put(s, spId);
+                    }
                 }
             }
         }
@@ -294,6 +368,29 @@ public class UsagiView extends View {
             }
         }
         return frames;
+    }
+
+    private void loadResourcesAsync() {
+        if (gameHandler != null) {
+            gameHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    loadResources();
+                    resourcesLoaded = true;
+                    mainHandler.post(new Runnable() {
+                        @Override public void run() { postInvalidate(); }
+                    });
+                }
+            });
+        } else {
+            new Thread(new Runnable() {
+                @Override public void run() {
+                    loadResources();
+                    resourcesLoaded = true;
+                    mainHandler.post(new Runnable() { @Override public void run() { postInvalidate(); }});
+                }
+            }, "UsagiResourceLoader").start();
+        }
     }
 
     // 尝试加载贴图，但如果资源不存在则返回 null（便于决定是否使用镜像或回退）
@@ -329,18 +426,56 @@ public class UsagiView extends View {
     }
 
     private void startGameLoop() {
-        final Handler handler = new Handler();
-        handler.post(new Runnable() {
+        if (isRunning) return;
+        gameThread = new HandlerThread("UsagiGameThread");
+        gameThread.start();
+        gameHandler = new Handler(gameThread.getLooper());
+        isRunning = true;
+
+        final Runnable gameLoop = new Runnable() {
             @Override
             public void run() {
+                if (!isRunning) return;
+
+                // 背景线程执行核心更新
                 updatePhysics();
                 updateAI();
                 updateAnimation();
-                updateWindowLayout();
-                invalidate();
-                handler.postDelayed(this, 16); // ~60 FPS
+
+                // UI 更新需回到主线程（更新 layout / 触发重绘）
+                mainHandler.post(new Runnable() {
+                    @Override public void run() {
+                        updateWindowLayout();
+                        postInvalidateOnAnimation();
+                    }
+                });
+
+                if (isRunning && gameHandler != null) {
+                    gameHandler.postDelayed(this, GAME_FRAME_MS);
+                }
             }
-        });
+        };
+
+        gameHandler.post(gameLoop);
+    }
+
+    private void stopGameLoop() {
+        isRunning = false;
+        if (gameHandler != null) {
+            gameHandler.removeCallbacksAndMessages(null);
+        }
+        if (gameThread != null) {
+            gameThread.quitSafely();
+            try { gameThread.join(); } catch (InterruptedException ignored) {}
+            gameThread = null;
+            gameHandler = null;
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        stopGameLoop();
     }
 
     // --- 核心物理逻辑 ---
@@ -628,8 +763,8 @@ public class UsagiView extends View {
                         if (floorAction == 0) {
                             // 转身一圈
                             animState = AnimationState.TWIST;
-                            // 定时播放替代即时播放
-                            new Handler().postDelayed(() -> {
+                            // 定时播放替代即时播放（主线程调度，避免在后台线程创建 Handler 报错）
+                            mainHandler.postDelayed(() -> {
                                 if (!isDragging && posState == PositionState.FLOOR) {
                                     animState = AnimationState.IDLE;
                                     vx = 0;
@@ -639,8 +774,8 @@ public class UsagiView extends View {
                         } else if (floorAction == 1) {
                             // 脚交叉站立
                             animState = AnimationState.TIP;
-                            // 定时播放替代即时播放
-                            new Handler().postDelayed(() -> {
+                            // 定时播放替代即时播放（主线程调度）
+                            mainHandler.postDelayed(() -> {
                                 if (!isDragging && posState == PositionState.FLOOR) {
                                     animState = AnimationState.IDLE;
                                     vx = 0;
@@ -656,8 +791,8 @@ public class UsagiView extends View {
                     } else {
                         // 其他位置执行通用动作
                         animState = AnimationState.ACTION_1;
-                        // 定时播放替代即时播放
-                        new Handler().postDelayed(() -> {
+                        // 定时播放替代即时播放（主线程调度）
+                        mainHandler.postDelayed(() -> {
                             if (!isDragging && posState != PositionState.AIR) {
                                 vx = 0;
                                 vy = 0;
@@ -855,32 +990,39 @@ public class UsagiView extends View {
         Bitmap[] frames = getCurrentBitmaps();
         if (frames == null || frames.length == 0) return;
 
-        Bitmap bitmap = frames[currentFrameIndex % frames.length];
+        // 先在同步块内复制需要的状态，避免并发读写导致显示不一致
+        Bitmap bitmap;
+        float drawX = 0, drawY = 0;
+        PositionState localPosState;
+        AnimationState localAnimState;
+        int localFrameIndex;
+
+        synchronized (this) {
+            localPosState = this.posState;
+            localAnimState = this.animState;
+            localFrameIndex = this.currentFrameIndex % frames.length;
+            bitmap = frames[localFrameIndex];
+        }
+
         if (bitmap != null) {
             canvas.save();
 
-            // 已移除所有基于位置的旋转，贴图方向由左右贴图区分处理
-
-            // 计算绘制偏移
-            float drawX = 0;
-            float drawY = 0;
-
             // 左右墙壁吸附时，贴图向该方向多移动px
-            if (posState == PositionState.WALL_LEFT) {
+            if (localPosState == PositionState.WALL_LEFT) {
                 drawX = -ADHERE_DRAW_OFFSET;
-            } else if (posState == PositionState.WALL_RIGHT) {
+            } else if (localPosState == PositionState.WALL_RIGHT) {
                 drawX = ADHERE_DRAW_OFFSET;
             }
 
             // 竖直方向偏移：行走和站立时向上偏移16px，吸附时多偏移94px
-            if (posState == PositionState.CEILING) {
-                if (animState == AnimationState.MOVE || animState == AnimationState.IDLE) {
+            if (localPosState == PositionState.CEILING) {
+                if (localAnimState == AnimationState.MOVE || localAnimState == AnimationState.IDLE) {
                     drawY = -ADHERE_DRAW_OFFSET - 16; // 天花板移动/站立时向上偏移94px+16px
                 } else {
                     drawY = -ADHERE_DRAW_OFFSET; // 天花板吸附时向上偏移94px
                 }
-            } else if (posState == PositionState.FLOOR) {
-                if (animState == AnimationState.MOVE || animState == AnimationState.IDLE) {
+            } else if (localPosState == PositionState.FLOOR) {
+                if (localAnimState == AnimationState.MOVE || localAnimState == AnimationState.IDLE) {
                     drawY = -16; // 地面行走和站立时向上偏移16px
                 } else {
                     drawY = ADHERE_DRAW_OFFSET; // 地面吸附时向下偏移94px
@@ -998,7 +1140,15 @@ public class UsagiView extends View {
         }
     }
 
-    private void playSound(String type) {
+    private void playSound(final String type) {
+        if (gameHandler != null && Looper.myLooper() != gameHandler.getLooper()) {
+            gameHandler.post(new Runnable() { @Override public void run() { playSoundInternal(type); }});
+        } else {
+            playSoundInternal(type);
+        }
+    }
+
+    private void playSoundInternal(String type) {
         if (soundPool == null) return;
         // 仅按精确名称匹配；若无匹配，则随机播放一个已加载的音效（只播放一次）
         if (soundNameToId != null) {
@@ -1009,10 +1159,18 @@ public class UsagiView extends View {
             }
         }
         // 随机播放一个已加载音效（作为回退）
-        playRandomSound();
+        playRandomSoundInternal();
     }
 
     private void playRandomSound() {
+        if (gameHandler != null && Looper.myLooper() != gameHandler.getLooper()) {
+            gameHandler.post(new Runnable() { @Override public void run() { playRandomSoundInternal(); }});
+        } else {
+            playRandomSoundInternal();
+        }
+    }
+
+    private void playRandomSoundInternal() {
         if (soundIds == null || soundIds.isEmpty()) return;
         int soundId = soundIds.get(random.nextInt(soundIds.size()));
         playSoundOnce(soundId);
@@ -1030,18 +1188,30 @@ public class UsagiView extends View {
     }
 
     // 只允许同时播放一个音效，并在短时间内节流，防止快速连续播放多段音频重叠
-    private void playSoundOnce(int resId) {
+    private void playSoundOnce(final int resId) {
+        if (gameHandler != null && Looper.myLooper() != gameHandler.getLooper()) {
+            gameHandler.post(new Runnable() { @Override public void run() { playSoundOnceInternal(resId); }});
+        } else {
+            playSoundOnceInternal(resId);
+        }
+    }
+
+    private void playSoundOnceInternal(int resId) {
         if (soundPool == null) return;
         long now = System.currentTimeMillis();
         synchronized (soundPlayLock) {
             if (now - lastSoundPlayTime < SOUND_MIN_INTERVAL_MS) return; // 在冷却期内，忽略播放请求
             // 停止当前正在播放的流以杜绝重叠
-            for (int sid : activeSoundStreams) {
+            for (int sid : new ArrayList<>(activeSoundStreams)) {
                 try { soundPool.stop(sid); } catch (Exception ignored) {}
             }
             activeSoundStreams.clear();
             int streamId = soundPool.play(resId, 1.0f, 1.0f, 0, 0, 1.0f);
-            if (streamId != 0) activeSoundStreams.add(streamId);
+            if (streamId != 0) {
+                activeSoundStreams.add(streamId);
+            } else {
+                Log.w(TAG, "SoundPool.play returned streamId=0 for sample=" + resId);
+            }
             lastSoundPlayTime = now;
         }
     }
