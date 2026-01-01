@@ -687,29 +687,29 @@ public class UsagiView extends View {
                     targetMoveDistance = screenHeight * 0.3f;
                 }
             } else if (posState == PositionState.WALL_LEFT || posState == PositionState.WALL_RIGHT) {
-                // 墙壁移动：碰到上边缘，切换到天花板并继续水平移动
+                // 墙壁移动：碰到上/下边缘时，切换为天花板/地面并沿远离墙面的方向继续水平移动
+                boolean wasLeftWall = (posState == PositionState.WALL_LEFT);
+                // 碰到上边缘，切换到天花板并继续水平移动（朝远离墙面的方向）
                 if (y <= 0 && vy < 0) {
                     y = 0;
                     posState = PositionState.CEILING;
-                    // 继续向右移动
-                    moveSpeed = Math.abs(moveSpeed); // 保持速度大小，方向向右
-                    vx = moveSpeed;
+                    moveSpeed = Math.abs(moveSpeed);
+                    vx = wasLeftWall ? moveSpeed : -moveSpeed;
                     vy = 0;
                     moveStartX = x;
                     targetMoveDistance = screenWidth * 0.5f;
-                    lastMoveDirection = Direction.RIGHT;
+                    lastMoveDirection = wasLeftWall ? Direction.RIGHT : Direction.LEFT;
                 }
-                // 碰到下边缘，切换到地面并继续水平移动
+                // 碰到下边缘，切换到地面并继续水平移动（朝远离墙面的方向）
                 else if (y >= screenHeight - characterHeight && vy > 0) {
                     y = screenHeight - characterHeight;
                     posState = PositionState.FLOOR;
-                    // 继续向右移动
-                    moveSpeed = Math.abs(moveSpeed); // 保持速度大小，方向向右
-                    vx = moveSpeed;
+                    moveSpeed = Math.abs(moveSpeed);
+                    vx = wasLeftWall ? moveSpeed : -moveSpeed;
                     vy = 0;
                     moveStartX = x;
                     targetMoveDistance = screenWidth * 0.5f;
-                    lastMoveDirection = Direction.RIGHT;
+                    lastMoveDirection = wasLeftWall ? Direction.RIGHT : Direction.LEFT;
                 }
             }
         }
