@@ -30,7 +30,7 @@ public class UsagiView extends View {
     private static final float GRAB_FRICTION = 0.85f;   // 抓取时的阻力
     private static final float ADHERE_SPEED = 0.1f;     // 吸附到墙面的速度
     private static final float EDGE_SNAP_EPS = 6f;      // 靠边自动吸附的阈值（像素）
-    private static final int ADHERE_DRAW_OFFSET = 64;   // 吸附时贴图的绘制偏移（像素）
+    private static final int ADHERE_DRAW_OFFSET = 94;   // 吸附时贴图的绘制偏移（像素）
     private static final int THROW_THRESHOLD = 5;       // 判定为投掷的最小速度
 
     // 状态枚举
@@ -621,11 +621,23 @@ public class UsagiView extends View {
 
             // 已移除所有基于位置的旋转，贴图方向由左右贴图区分处理
 
-            // 绘制图片（位置偏移已应用到布局，直接以 (0,0) 绘制）
-            canvas.drawBitmap(bitmap, 0, 0, new Paint());
+            // 计算绘制偏移
+            float drawX = 0;
+            float drawY = 0;
+
+            // 左右墙壁吸附时，贴图向该方向多移动px
+            if (posState == PositionState.WALL_LEFT) {
+                drawX = -ADHERE_DRAW_OFFSET;
+            } else if (posState == PositionState.WALL_RIGHT) {
+                drawX = ADHERE_DRAW_OFFSET;
+            }
+
+            // 绘制图片
+            canvas.drawBitmap(bitmap, drawX, drawY, new Paint());
             canvas.restore();
         }
     }
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
