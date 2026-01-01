@@ -317,7 +317,10 @@ public class UsagiView extends View {
                 vy = 0;
                 if (posState != PositionState.FLOOR) {
                     posState = PositionState.FLOOR;
-                    animState = AnimationState.IDLE;
+                    // 保持当前动画状态，如果是MOVE则继续播放动画
+                    if (animState != AnimationState.MOVE && animState != AnimationState.FALL) {
+                        animState = AnimationState.IDLE;
+                    }
                     playSound("land");
                 }
             }
@@ -332,7 +335,10 @@ public class UsagiView extends View {
                 vy = 0;
                 if (posState != PositionState.CEILING) {
                     posState = PositionState.CEILING;
-                    animState = AnimationState.IDLE;
+                    // 保持当前动画状态，如果是MOVE则继续播放动画
+                    if (animState != AnimationState.MOVE && animState != AnimationState.FALL) {
+                        animState = AnimationState.IDLE;
+                    }
                     playSound("land");
                 }
             }
@@ -358,7 +364,10 @@ public class UsagiView extends View {
                 // 优化：当走到左边缘时，切换到左墙状态
                 if (posState != PositionState.WALL_LEFT) {
                     posState = PositionState.WALL_LEFT;
-                    animState = AnimationState.IDLE;
+                    // 保持当前动画状态，如果是MOVE则继续播放动画
+                    if (animState != AnimationState.MOVE && animState != AnimationState.FALL) {
+                        animState = AnimationState.IDLE;
+                    }
                     playSound("climb");
                 }
             }
@@ -374,7 +383,10 @@ public class UsagiView extends View {
                 // 优化：当走到右边缘时，切换到右墙状态
                 if (posState != PositionState.WALL_RIGHT) {
                     posState = PositionState.WALL_RIGHT;
-                    animState = AnimationState.IDLE;
+                    // 保持当前动画状态，如果是MOVE则继续播放动画
+                    if (animState != AnimationState.MOVE && animState != AnimationState.FALL) {
+                        animState = AnimationState.IDLE;
+                    }
                     playSound("climb");
                 }
             }
@@ -537,6 +549,23 @@ public class UsagiView extends View {
     private void updateAnimation() {
         long now = System.currentTimeMillis();
 
+        // 判断是否需要播放动画
+        boolean shouldAnimate = false;
+        
+        // 如果是移动状态，总是播放动画
+        if (animState == AnimationState.MOVE) {
+            shouldAnimate = true;
+        }
+        // 如果是待机状态但在吸附位置，且没有移动，则保持第一帧
+        else if (animState == AnimationState.IDLE) {
+            shouldAnimate = false;
+            currentFrameIndex = 0; // 保持第一帧
+        }
+        // 其他状态（FALL, ACTION等）播放动画
+        else {
+            shouldAnimate = true;
+        }
+
         // 如果动画状态发生变化，重置帧索引以确保动画从第一帧开始循环
         if (prevAnimState != animState) {
             currentFrameIndex = 0;
@@ -544,7 +573,8 @@ public class UsagiView extends View {
             prevAnimState = animState;
         }
 
-        if (now - lastFrameTime > frameInterval) {
+        // 只有需要播放动画时才更新帧索引
+        if (shouldAnimate && now - lastFrameTime > frameInterval) {
             lastFrameTime = now;
             currentFrameIndex++;
 
@@ -630,6 +660,17 @@ public class UsagiView extends View {
                 drawX = -ADHERE_DRAW_OFFSET;
             } else if (posState == PositionState.WALL_RIGHT) {
                 drawX = ADHERE_DRAW_OFFSET;
+            }
+
+            // 竖直方向偏移：行走和站立时向上偏移16px，吸附时多偏移94px
+            if (posState == PositionState.CEILING || posState == PositionState.FLOOR) {
+                if (animState == AnimationState.MOVE || animState == AnimationState.IDLE) {
+                    drawY = -16; // 行走和站立时向上偏移16px
+                } else if (posState == PositionState.CEILING) {
+                    drawY = -ADHERE_DRAW_OFFSET; // 天花板吸附时向上偏移94px
+                } else if (posState == PositionState.FLOOR) {
+                    drawY = ADHERE_DRAW_OFFSET; // 地面吸附时向下偏移94px
+                }
             }
 
             // 绘制图片
