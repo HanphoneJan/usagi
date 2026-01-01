@@ -29,6 +29,8 @@ public class UsagiView extends View {
     private static final float AIR_FRICTION = 0.98f;    // 空气阻力
     private static final float GRAB_FRICTION = 0.85f;   // 抓取时的阻力
     private static final float ADHERE_SPEED = 0.1f;     // 吸附到墙面的速度
+    private static final float EDGE_SNAP_EPS = 6f;      // 靠边自动吸附的阈值（像素）
+    private static final int ADHERE_DRAW_OFFSET = 64;   // 吸附时贴图的绘制偏移（像素）
     private static final int THROW_THRESHOLD = 5;       // 判定为投掷的最小速度
 
     // 状态枚举
@@ -396,6 +398,31 @@ public class UsagiView extends View {
             if (posState == PositionState.CEILING && y > 0) y += (0 - y) * ADHERE_SPEED;
             if (posState == PositionState.FLOOR && y < screenHeight - characterHeight)
                 y += ((screenHeight - characterHeight) - y) * ADHERE_SPEED;
+
+            // 额外小阈值自动贴边：当速度很小且接近屏幕边缘时强制吸附，提升边缘判定稳定性
+            if (Math.abs(vx) < 1f && Math.abs(vy) < 1f) {
+                // 优先左右吸附
+                if (x <= EDGE_SNAP_EPS) {
+                    x = 0;
+                    posState = PositionState.WALL_LEFT;
+                    animState = AnimationState.IDLE;
+                } else if (x >= screenWidth - characterWidth - EDGE_SNAP_EPS) {
+                    x = screenWidth - characterWidth;
+                    posState = PositionState.WALL_RIGHT;
+                    animState = AnimationState.IDLE;
+                } else {
+                    // 若不贴墙再判断上下边
+                    if (y <= EDGE_SNAP_EPS) {
+                        y = 0;
+                        posState = PositionState.CEILING;
+                        animState = AnimationState.IDLE;
+                    } else if (y >= screenHeight - characterHeight - EDGE_SNAP_EPS) {
+                        y = screenHeight - characterHeight;
+                        posState = PositionState.FLOOR;
+                        animState = AnimationState.IDLE;
+                    }
+                }
+            }
         }
     }
 
@@ -566,8 +593,16 @@ public class UsagiView extends View {
     private void updateWindowLayout() {
         if (layoutParams == null) layoutParams = (WindowManager.LayoutParams) getLayoutParams();
         if (layoutParams != null) {
-            layoutParams.x = (int) x;
-            layoutParams.y = (int) y;
+            // 如果处于吸附状态，则把绘制偏移应用到布局坐标，这样贴图不会被 view 边界裁剪掉
+            int offsetX = 0;
+            int offsetY = 0;
+            if (posState == PositionState.WALL_LEFT) offsetX -= ADHERE_DRAW_OFFSET;
+            else if (posState == PositionState.WALL_RIGHT) offsetX += ADHERE_DRAW_OFFSET;
+            if (posState == PositionState.FLOOR) offsetY += ADHERE_DRAW_OFFSET;
+            else if (posState == PositionState.CEILING) offsetY -= ADHERE_DRAW_OFFSET;
+
+            layoutParams.x = (int) (x + offsetX);
+            layoutParams.y = (int) (y + offsetY);
             windowManager.updateViewLayout(this, layoutParams);
         }
     }
@@ -586,7 +621,7 @@ public class UsagiView extends View {
 
             // 已移除所有基于位置的旋转，贴图方向由左右贴图区分处理
 
-            // 绘制图片
+            // 绘制图片（位置偏移已应用到布局，直接以 (0,0) 绘制）
             canvas.drawBitmap(bitmap, 0, 0, new Paint());
             canvas.restore();
         }
@@ -603,9 +638,9 @@ public class UsagiView extends View {
                 lastTouchX = rawX;
                 lastTouchY = rawY;
                 lastTouchTime = System.currentTimeMillis();
-                // 记录触点相对于视图左上角的偏移，拖拽时用它保持手指与视图的相对位置一致
-                dragOffsetX = rawX - x;
-                dragOffsetY = rawY - y;
+                // 使用事件的本地坐标记录触点在视图内的偏移，避免不同窗口坐标系带来的误差
+                dragOffsetX = event.getX();
+                dragOffsetY = event.getY();
                 vx = 0;
                 vy = 0;
                 playRandomSound();
