@@ -817,19 +817,50 @@ public class UsagiView extends View {
         }
     }
 
+    // 检查触摸点是否在角色区域内
+    private boolean isTouchOnCharacter(float rawTouchX, float rawTouchY) {
+        // 角色在屏幕上的实际绘制区域（考虑layoutParams偏移）
+        float characterScreenX = x;
+        float characterScreenY = y;
+        
+        // updateWindowLayout中应用的偏移量
+        if (layoutParams != null) {
+            int offsetX = 0, offsetY = 0;
+            if (currentPosition == Position.WALL_LEFT) offsetX -= ADHERE_DRAW_OFFSET;
+            else if (currentPosition == Position.WALL_RIGHT) offsetX += ADHERE_DRAW_OFFSET;
+            else if (currentPosition == Position.CEILING) offsetY -= ADHERE_DRAW_OFFSET;
+            characterScreenX += offsetX;
+            characterScreenY += offsetY;
+        }
+        
+        // 角色实际绘制偏移（与onDraw中的drawX/drawY对应）
+        if (currentPosition == Position.WALL_LEFT) characterScreenX -= ADHERE_DRAW_OFFSET;
+        else if (currentPosition == Position.WALL_RIGHT) characterScreenX += ADHERE_DRAW_OFFSET;
+        else if (currentPosition == Position.CEILING) characterScreenY -= ADHERE_DRAW_OFFSET;
+
+        // 判断触摸点是否在角色矩形内
+        return rawTouchX >= characterScreenX && rawTouchX <= characterScreenX + characterWidth &&
+               rawTouchY >= characterScreenY && rawTouchY <= characterScreenY + characterHeight;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         float rawX = event.getRawX();
         float rawY = event.getRawY();
+
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                // 只有点击角色区域内才开始拖动（使用原始屏幕坐标）
+                if (!isTouchOnCharacter(rawX, rawY)) {
+                    return false;
+                }
                 isDragging = true;
                 isMoving = false; // 拖动打断AI移动
                 lastTouchX = rawX;
                 lastTouchY = rawY;
                 lastTouchTime = System.currentTimeMillis();
-                dragOffsetX = event.getX();
-                dragOffsetY = event.getY();
+                dragOffsetX = rawX - x;
+                dragOffsetY = rawY - y;
                 vx = 0;
                 vy = 0;
                 currentState = State.FALLING;
@@ -866,7 +897,7 @@ public class UsagiView extends View {
                 }
                 break;
         }
-        return true;
+        return isDragging;
     }
 
     private void checkEdgeAdhere() {
