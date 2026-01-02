@@ -1,6 +1,7 @@
 package com.example.usagi;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -89,6 +90,12 @@ public class UsagiView extends View {
     private volatile boolean isRunning = false;
     private volatile boolean resourcesLoaded = false;
 
+    // 设置相关
+    private SharedPreferences sharedPreferences;
+    private int volume = 50;
+    private int speed = 50;
+    private boolean showUsagi = true;
+
     // 定时音效
     private static final int SCHEDULE_MIN_MS = 10 * 1000;
     private static final int SCHEDULE_MAX_MS = 25 * 1000;
@@ -144,9 +151,67 @@ public class UsagiView extends View {
         vx = 0;
         vy = 0;
 
+        loadSettings();
         startGameLoop();
         startSoundScheduler();
         loadResourcesAsync();
+    }
+
+    // --- 设置加载 ---
+    private void loadSettings() {
+        sharedPreferences = context.getSharedPreferences("usagi_settings", Context.MODE_PRIVATE);
+        volume = sharedPreferences.getInt("volume", 50);
+        speed = sharedPreferences.getInt("speed", 50);
+        showUsagi = sharedPreferences.getBoolean("show_usagi", true);
+
+        // 注册 SharedPreferences 变化监听器
+        sharedPreferences.registerOnSharedPreferenceChangeListener(settingsListener);
+
+        // 应用动画速度设置
+        updateAnimationSpeed();
+
+        // 应用显示/隐藏设置
+        updateVisibility();
+    }
+
+    private final SharedPreferences.OnSharedPreferenceChangeListener settingsListener =
+            (sharedPreferences, key) -> {
+                if ("volume".equals(key)) {
+                    volume = sharedPreferences.getInt(key, 50);
+                } else if ("speed".equals(key)) {
+                    speed = sharedPreferences.getInt(key, 50);
+                    updateAnimationSpeed();
+                } else if ("show_usagi".equals(key)) {
+                    showUsagi = sharedPreferences.getBoolean(key, true);
+                    updateVisibility();
+                }
+            };
+
+    private void updateAnimationSpeed() {
+        // frameInterval 基础值120，速度50%时为120ms，速度0%时为240ms，速度100%时为60ms
+        frameInterval = 240 - (speed * 180 / 100);
+    }
+
+    private void updateVisibility() {
+        if (mainHandler != null) {
+            mainHandler.post(() -> {
+                if (layoutParams != null) {
+                    if (showUsagi) {
+                        setVisibility(VISIBLE);
+                    } else {
+                        setVisibility(GONE);
+                    }
+                } else {
+                    setVisibility(showUsagi ? VISIBLE : GONE);
+                }
+            });
+        } else {
+            setVisibility(showUsagi ? VISIBLE : GONE);
+        }
+    }
+
+    public void reloadSettings() {
+        loadSettings();
     }
 
     // --- 资源加载 ---
@@ -254,6 +319,10 @@ public class UsagiView extends View {
         if (gameThread != null) { gameThread.quitSafely(); try { gameThread.join(); } catch (Exception ignored) {} }
         if (soundHandler != null) soundHandler.removeCallbacksAndMessages(null);
         if (soundThread != null) { soundThread.quitSafely(); try { soundThread.join(); } catch (Exception ignored) {} }
+        // 注销 SharedPreferences 监听器
+        if (sharedPreferences != null && settingsListener != null) {
+            sharedPreferences.unregisterOnSharedPreferenceChangeListener(settingsListener);
+        }
     }
 
     @Override protected void onDetachedFromWindow() { super.onDetachedFromWindow(); stopGameLoop(); }
@@ -854,7 +923,7 @@ public class UsagiView extends View {
 
     private void playRandomSound() {
         if (soundPool == null || soundIds == null || soundIds.isEmpty()) return;
-        
+
         mainHandler.post(() -> {
             synchronized (soundPlayLock) {
                 long now = System.currentTimeMillis();
@@ -862,10 +931,13 @@ public class UsagiView extends View {
                     return;
                 }
                 lastSoundPlayTime = now;
-                
+
+                // 应用音量设置
+                float volumeValue = volume / 100.0f;
+
                 int randomSoundId = soundIds.get(random.nextInt(soundIds.size()));
-                int streamId = soundPool.play(randomSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
-                
+                int streamId = soundPool.play(randomSoundId, volumeValue, volumeValue, 1, 0, 1.0f);
+
                 if (streamId > 0) {
                     activeSoundStreams.add(streamId);
                     soundPool.setOnLoadCompleteListener((soundPool, sampleId, status) -> {

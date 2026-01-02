@@ -90,7 +90,6 @@ public class SettingsActivity extends AppCompatActivity {
             swShowUsagi.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 editor.putBoolean("show_usagi", isChecked);
                 editor.apply();
-                // 这里可以添加显示/隐藏桌宠的逻辑
             });
         }
     }
