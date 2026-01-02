@@ -77,7 +77,7 @@ public class UsagiView extends View {
     private List<Integer> activeSoundStreams = new ArrayList<>();
     private final Object soundPlayLock = new Object();
     private long lastSoundPlayTime = 0;
-    private static final long SOUND_MIN_INTERVAL_MS = 300;
+    private static final long SOUND_MIN_INTERVAL_MS = 100000;
     private Random random = new Random();
 
     // 线程控制
