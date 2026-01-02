@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.CompoundButton;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -80,24 +79,18 @@ public class SettingsActivity extends AppCompatActivity {
 
         // 设置开机自启开关监听（添加空指针检查）
         if (swAutoStart != null) {
-            swAutoStart.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    editor.putBoolean("auto_start", isChecked);
-                    editor.apply();
-                }
+            swAutoStart.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                editor.putBoolean("auto_start", isChecked);
+                editor.apply();
             });
         }
 
         // 设置显示/隐藏开关监听（添加空指针检查）
         if (swShowUsagi != null) {
-            swShowUsagi.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    editor.putBoolean("show_usagi", isChecked);
-                    editor.apply();
-                    // 这里可以添加显示/隐藏桌宠的逻辑
-                }
+            swShowUsagi.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                editor.putBoolean("show_usagi", isChecked);
+                editor.apply();
+                // 这里可以添加显示/隐藏桌宠的逻辑
             });
         }
     }
