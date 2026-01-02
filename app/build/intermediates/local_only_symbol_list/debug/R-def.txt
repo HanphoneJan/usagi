@@ -30,6 +30,7 @@ drawable creep_2
 drawable creep_right_1
 drawable creep_right_2
 drawable fall_1
+drawable icon_background
 drawable jump_1
 drawable pinch_left_1
 drawable pinch_left_2
@@ -64,6 +65,9 @@ id tv_volume
 id tv_volume_title
 layout activity_main
 layout activity_settings
+mipmap icon
+mipmap icon_foreground
+mipmap icon_round
 raw ha_doubt
 raw ha_doubt_2
 raw ha_doubt_3
