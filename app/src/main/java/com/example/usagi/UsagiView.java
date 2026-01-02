@@ -80,15 +80,16 @@ public class UsagiView extends View {
     // 线程控制
     private HandlerThread gameThread;
     private Handler gameHandler;
+    private HandlerThread soundThread;
+    private Handler soundHandler;
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private static final long GAME_FRAME_MS = 16;
     private volatile boolean isRunning = false;
     private volatile boolean resourcesLoaded = false;
 
     // 定时音效
-    private long nextScheduledSoundTime = 0;
-    private static final int SCHEDULE_MIN_MS = 20 * 1000;
-    private static final int SCHEDULE_MAX_MS = 30 * 1000;
+    private static final int SCHEDULE_MIN_MS = 10 * 1000;
+    private static final int SCHEDULE_MAX_MS = 25 * 1000;
 
     // 交互控制
     private boolean isDragging = false;
@@ -147,8 +148,8 @@ public class UsagiView extends View {
         vy = 0;
 
         startGameLoop();
+        startSoundScheduler();
         loadResourcesAsync();
-        scheduleNextSound();
     }
 
     // --- 资源加载 ---
@@ -179,7 +180,7 @@ public class UsagiView extends View {
     private void loadResources() {
         String packageName = context.getPackageName();
         idleFrames = loadFrames(new String[]{"stand_1"}, packageName);
-        walkLeftFrames = loadFramesIfExists(new String[]{"walk_left_1", "walk_left_2"}, packageName);
+        walkLeftFrames = loadFramesIfExists(new String[]{"walk_1", "walk_2"}, packageName);
         walkRightFrames = loadFramesIfExists(new String[]{"walk_right_1", "walk_right_2"}, packageName);
         if (walkLeftFrames == null && walkRightFrames == null) {
             Bitmap[] commonWalk = loadFramesIfExists(new String[]{"walk_1", "walk_2"}, packageName);
@@ -191,10 +192,14 @@ public class UsagiView extends View {
         else if (walkRightFrames == null) walkRightFrames = flipBitmaps(walkLeftFrames);
 
         fallFrames = loadFramesIfExists(new String[]{"fall_1"}, packageName);
-        ceilFrames = loadFramesIfExists(new String[]{"ceil_1", "ceil_2"}, packageName);
-        creepFrames = loadFramesIfExists(new String[]{"creep_1", "creep_2"}, packageName);
+        ceilLeftFrames = loadFramesIfExists(new String[]{"ceil_1", "ceil_2"}, packageName);
+        ceilRightFrames = loadFramesIfExists(new String[]{"ceil_right_1", "ceil_right_2"}, packageName);
+        creepLeftFrames = loadFramesIfExists(new String[]{"creep_1", "creep_2"}, packageName);
+        creepRightFrames = loadFramesIfExists(new String[]{"creep_right_1", "creep_right_2"}, packageName);
+        pinchLeftFrames = loadFramesIfExists(new String[]{"pinch_left_1", "pinch_left_2"}, packageName);
+        pinchRightFrames = loadFramesIfExists(new String[]{"pinch_right_1", "pinch_right_2"}, packageName);
         twistFrames = loadFramesIfExists(new String[]{"twist_1", "twist_2"}, packageName);
-        tipFrames = loadFramesIfExists(new String[]{"tip_1"}, packageName);
+        tipFrames = loadFramesIfExists(new String[]{"tip_1,tip_2"}, packageName);
 
         wallLeftFrames = loadFramesIfExists(new String[]{"climb_left_1", "climb_left_2"}, packageName);
         wallRightFrames = loadFramesIfExists(new String[]{"climb_right_1", "climb_right_2"}, packageName);
@@ -307,6 +312,8 @@ public class UsagiView extends View {
         isRunning = false;
         if (gameHandler != null) gameHandler.removeCallbacksAndMessages(null);
         if (gameThread != null) { gameThread.quitSafely(); try { gameThread.join(); } catch (Exception ignored) {} }
+        if (soundHandler != null) soundHandler.removeCallbacksAndMessages(null);
+        if (soundThread != null) { soundThread.quitSafely(); try { soundThread.join(); } catch (Exception ignored) {} }
     }
 
     @Override protected void onDetachedFromWindow() { super.onDetachedFromWindow(); stopGameLoop(); }
@@ -880,9 +887,53 @@ public class UsagiView extends View {
         } catch (Exception ignored) {}
     }
 
+    // --- 后台音效播放线程 ---
+    private void startSoundScheduler() {
+        soundThread = new HandlerThread("UsagiSoundThread");
+        soundThread.start();
+        soundHandler = new Handler(soundThread.getLooper());
+        scheduleNextSound();
+    }
+
     private void scheduleNextSound() {
-        long now = System.currentTimeMillis();
-        int delay = SCHEDULE_MIN_MS + random.nextInt(SCHEDULE_MAX_MS - SCHEDULE_MIN_MS + 1);
-        nextScheduledSoundTime = now + delay;
+        if (soundHandler == null) return;
+        soundHandler.postDelayed(new Runnable() {
+            @Override public void run() {
+                playRandomSound();
+                int delay = SCHEDULE_MIN_MS + random.nextInt(SCHEDULE_MAX_MS - SCHEDULE_MIN_MS + 1);
+                soundHandler.postDelayed(this, delay);
+            }
+        }, SCHEDULE_MIN_MS + random.nextInt(SCHEDULE_MAX_MS - SCHEDULE_MIN_MS + 1));
+    }
+
+    private void playRandomSound() {
+        if (soundPool == null || soundIds == null || soundIds.isEmpty()) return;
+        
+        mainHandler.post(() -> {
+            synchronized (soundPlayLock) {
+                long now = System.currentTimeMillis();
+                if (now - lastSoundPlayTime < SOUND_MIN_INTERVAL_MS) {
+                    return;
+                }
+                lastSoundPlayTime = now;
+                
+                int randomSoundId = soundIds.get(random.nextInt(soundIds.size()));
+                int streamId = soundPool.play(randomSoundId, 1.0f, 1.0f, 1, 0, 1.0f);
+                
+                if (streamId > 0) {
+                    activeSoundStreams.add(streamId);
+                    soundPool.setOnLoadCompleteListener((soundPool, sampleId, status) -> {
+                        if (status == 0) {
+                            // 声音加载完成，清理已播放的stream
+                            new Handler().postDelayed(() -> {
+                                synchronized (soundPlayLock) {
+                                    activeSoundStreams.remove(Integer.valueOf(streamId));
+                                }
+                            }, 3000);
+                        }
+                    });
+                }
+            }
+        });
     }
 }
