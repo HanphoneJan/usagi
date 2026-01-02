@@ -905,6 +905,7 @@ public class UsagiView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        // 绘制角色
         Bitmap[] frames = getCurrentBitmaps();
         if (frames == null || frames.length == 0) return;
         Bitmap bitmap = frames[currentFrameIndex % frames.length];

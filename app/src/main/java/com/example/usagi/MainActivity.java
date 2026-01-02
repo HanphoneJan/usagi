@@ -3,14 +3,20 @@ package com.example.usagi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.widget.Button;
+import android.widget.ImageView;
+
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
 
     private Button btnStart, btnStop, btnSettings;
+    private ImageView ivBackground;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +26,10 @@ public class MainActivity extends AppCompatActivity {
         btnStart = findViewById(R.id.btn_start);
         btnStop = findViewById(R.id.btn_stop);
         btnSettings = findViewById(R.id.btn_settings);
+        ivBackground = findViewById(R.id.iv_background);
+
+        // 加载背景
+        loadBackground();
 
         // 启动按钮点击事件
         btnStart.setOnClickListener(v -> {
@@ -44,5 +54,25 @@ public class MainActivity extends AppCompatActivity {
             // 打开设置界面
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // 从设置返回时重新加载背景
+        loadBackground();
+    }
+
+    private void loadBackground() {
+        File backgroundImageFile = new File(getFilesDir(), "background_image.jpg");
+        if (backgroundImageFile.exists()) {
+            Bitmap bitmap = BitmapFactory.decodeFile(backgroundImageFile.getAbsolutePath());
+            if (bitmap != null) {
+                ivBackground.setImageBitmap(bitmap);
+                ivBackground.setVisibility(android.view.View.VISIBLE);
+            }
+        } else {
+            ivBackground.setVisibility(android.view.View.GONE);
+        }
     }
 }

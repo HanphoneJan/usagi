@@ -3227,6 +3227,8 @@ int id bounce 0x7f08005f
 int id bounceBoth 0x7f080060
 int id bounceEnd 0x7f080061
 int id bounceStart 0x7f080062
+int id btn_clear_background 0x7f080207
+int id btn_select_background 0x7f080208
 int id btn_settings 0x7f080063
 int id btn_start 0x7f080064
 int id btn_stop 0x7f080065
@@ -3359,6 +3361,8 @@ int id invisible 0x7f0800e3
 int id inward 0x7f0800e4
 int id italic 0x7f0800e5
 int id item_touch_helper_previous_elevation 0x7f0800e6
+int id iv_background 0x7f08020b
+int id iv_background_preview 0x7f080209
 int id jumpToEnd 0x7f0800e7
 int id jumpToStart 0x7f0800e8
 int id labeled 0x7f0800e9
@@ -3376,6 +3380,7 @@ int id ll_show_usagi 0x7f0800f4
 int id locale 0x7f0800f5
 int id ltr 0x7f0800f6
 int id m3_side_sheet 0x7f0800f7
+int id main_layout 0x7f08020c
 int id marquee 0x7f0800f8
 int id masked 0x7f0800f9
 int id match_constraint 0x7f0800fa
@@ -3620,6 +3625,7 @@ int id transition_position 0x7f0801e8
 int id transition_scene_layoutid_cache 0x7f0801e9
 int id transition_transform 0x7f0801ea
 int id triangle 0x7f0801eb
+int id tv_background_title 0x7f08020a
 int id tv_speed 0x7f0801ec
 int id tv_speed_title 0x7f0801ed
 int id tv_volume 0x7f0801ee
