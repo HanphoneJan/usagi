@@ -115,6 +115,11 @@ public class UsagiView extends View {
     private boolean isNearTopEdge = false;
     private boolean isNearBottomEdge = false;
 
+    // Creep状态移动相关
+    private long creepStartTime = 0;
+    private static final long CREEP_DURATION_MS = 2000;
+    private float creepSpeed = 1.5f;
+
     public UsagiView(Context context) {
         super(context);
         this.context = context;
@@ -140,20 +145,6 @@ public class UsagiView extends View {
         y = screenHeight / 2 - characterHeight / 2;
         vx = 0;
         vy = 0;
-
-        // 【修复点1】预先初始化所有数组为默认占位图
-        // 防止异步加载未完成时 getCurrentBitmaps 返回 null 导致粉色方块
-        Bitmap def = createPlaceholderBitmap(characterWidth, characterHeight);
-        idleFrames = new Bitmap[]{def};
-        walkLeftFrames = new Bitmap[]{def};
-        walkRightFrames = new Bitmap[]{def};
-        fallFrames = new Bitmap[]{def};
-        wallLeftFrames = new Bitmap[]{def};
-        wallRightFrames = new Bitmap[]{def};
-        ceilFrames = new Bitmap[]{def};
-        creepFrames = new Bitmap[]{def};
-        twistFrames = new Bitmap[]{def};
-        tipFrames = new Bitmap[]{def};
 
         startGameLoop();
         loadResourcesAsync();
@@ -202,7 +193,7 @@ public class UsagiView extends View {
         fallFrames = loadFramesIfExists(new String[]{"fall_1"}, packageName);
         ceilFrames = loadFramesIfExists(new String[]{"ceil_1", "ceil_2"}, packageName);
         creepFrames = loadFramesIfExists(new String[]{"creep_1", "creep_2"}, packageName);
-        twistFrames = loadFramesIfExists(new String[]{"twist_1", "twist_2", "twist_3", "twist_4"}, packageName);
+        twistFrames = loadFramesIfExists(new String[]{"twist_1", "twist_2"}, packageName);
         tipFrames = loadFramesIfExists(new String[]{"tip_1"}, packageName);
 
         wallLeftFrames = loadFramesIfExists(new String[]{"climb_left_1", "climb_left_2"}, packageName);
@@ -216,21 +207,40 @@ public class UsagiView extends View {
         } else if (wallLeftFrames == null) wallLeftFrames = flipBitmaps(wallRightFrames);
         else if (wallRightFrames == null) wallRightFrames = flipBitmaps(wallLeftFrames);
 
-        // 占位符回退（二次保险）
-        if (idleFrames == null) idleFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        if (walkLeftFrames == null && walkRightFrames == null) {
-            Bitmap p = createPlaceholderBitmap(characterWidth, characterHeight);
-            walkRightFrames = new Bitmap[]{p}; walkLeftFrames = flipBitmaps(walkRightFrames);
+        // 【修复点1：修正占位符逻辑，确保所有动画都有有效位图】
+        if (idleFrames == null || idleFrames[0] == null) {
+            idleFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
         }
-        if (fallFrames == null) fallFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        if (ceilFrames == null) ceilFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        if (wallLeftFrames == null && wallRightFrames == null) {
-            Bitmap p = createPlaceholderBitmap(characterWidth, characterHeight);
-            wallRightFrames = new Bitmap[]{p}; wallLeftFrames = flipBitmaps(wallRightFrames);
+        if (walkLeftFrames == null || walkLeftFrames[0] == null) {
+            walkLeftFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
         }
-        if (creepFrames == null) creepFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        if (twistFrames == null) twistFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        if (tipFrames == null) tipFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        if (walkRightFrames == null || walkRightFrames[0] == null) {
+            walkRightFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        }
+        if (fallFrames == null || fallFrames[0] == null) {
+            fallFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        }
+        if (ceilFrames == null || ceilFrames[0] == null) {
+            ceilFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        }
+        if (wallLeftFrames == null || wallLeftFrames[0] == null) {
+            wallLeftFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        }
+        if (wallRightFrames == null || wallRightFrames[0] == null) {
+            wallRightFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        }
+        if (creepFrames == null || creepFrames[0] == null) {
+            creepFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        }
+        // 【关键修复：确保twistFrames和tipFrames有有效的位图】
+        if (twistFrames == null || twistFrames[0] == null) {
+            // 如果没有twist动画，使用idleFrames作为替代
+            twistFrames = idleFrames.clone();
+        }
+        if (tipFrames == null || tipFrames[0] == null) {
+            // 如果没有tip动画，使用idleFrames作为替代
+            tipFrames = idleFrames.clone();
+        }
 
         AudioAttributes attrs = new AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_GAME)
@@ -265,7 +275,11 @@ public class UsagiView extends View {
         if (src == null) return null;
         Bitmap[] out = new Bitmap[src.length];
         Matrix m = new Matrix(); m.preScale(-1, 1);
-        for (int i = 0; i < src.length; i++) out[i] = src[i] == null ? null : Bitmap.createBitmap(src[i], 0, 0, src[i].getWidth(), src[i].getHeight(), m, false);
+        for (int i = 0; i < src.length; i++) {
+            if (src[i] != null) {
+                out[i] = Bitmap.createBitmap(src[i], 0, 0, src[i].getWidth(), src[i].getHeight(), m, false);
+            }
+        }
         return out;
     }
 
@@ -302,8 +316,30 @@ public class UsagiView extends View {
 
         updateEdgeProximity();
 
-        // 如果处于 AI 移动或 Creep 移动状态，跳过重力和自动吸附，防止物理引擎干扰
-        if (isMoving || currentState == State.CREEPING) {
+        // 【修复点2：添加CREEPING状态的移动处理】
+        if (currentState == State.CREEPING) {
+            // Creep状态在地面移动
+            if (currentPosition == Position.FLOOR) {
+                long now = System.currentTimeMillis();
+                if (now - creepStartTime > CREEP_DURATION_MS) {
+                    // Creep时间结束，回到IDLE状态
+                    currentState = State.IDLE;
+                    vx = 0;
+                    vy = 0;
+                } else {
+                    // 根据最后的方向移动
+                    if (lastNonNoneDirection == Direction.LEFT) {
+                        vx = -creepSpeed;
+                    } else {
+                        vx = creepSpeed;
+                    }
+                    vy = 0;
+                }
+            }
+        }
+
+        // 如果处于AI移动状态，完全跳过重力、摩擦和自动吸附逻辑
+        if (isMoving) {
             x += vx;
             y += vy;
             return;
@@ -403,7 +439,7 @@ public class UsagiView extends View {
         x = nextX;
         y = nextY;
 
-        // 自动吸附逻辑
+        // 自动吸附逻辑：仅当静止且非移动状态时触发
         if (!collisionOccurred && (Math.abs(vx) < 0.5f && Math.abs(vy) < 0.5f)) {
             checkAutoAdhere();
         }
@@ -422,7 +458,7 @@ public class UsagiView extends View {
     }
 
     private void checkAutoAdhere() {
-        if (currentState == State.ADHERING || currentState == State.MOVING || currentState == State.CREEPING) return;
+        if (currentState == State.ADHERING || currentState == State.MOVING) return;
 
         float minDist = Float.MAX_VALUE;
         Position closestPos = Position.AIR;
@@ -492,23 +528,19 @@ public class UsagiView extends View {
     private void updateAI() {
         if (isDragging) return;
 
-        // 【修复点2】处理 MOVING 状态的移动
+        // 如果正在移动，只处理移动逻辑，跳过随机决策
         if (isMoving) {
             handleMovement();
             return;
         }
 
-        // 【修复点3】处理 CREEPING 状态的移动 (核心修复)
-        if (currentState == State.CREEPING) {
-            handleCreepMovement();
-            return;
-        }
-
         long now = System.currentTimeMillis();
+        // 增加时间间隔判断，避免状态刚切换就被打断
         if (now - lastActionTime > nextActionInterval) {
             lastActionTime = now;
             nextActionInterval = 2000 + random.nextInt(4000);
 
+            // 只有在稳定状态下才执行新动作
             if (currentState == State.ADHERING || currentState == State.IDLE) {
                 int action = random.nextInt(10);
 
@@ -516,7 +548,7 @@ public class UsagiView extends View {
                     currentState = State.IDLE;
                     vx = 0; vy = 0;
                 } else if (action < 8) {
-                    startMovement();
+                    startMovement(); // 启动移动
                 } else {
                     performSpecialAction();
                 }
@@ -524,48 +556,8 @@ public class UsagiView extends View {
         }
     }
 
-    // 新增处理 CREEPING 状态的移动逻辑
-    private void handleCreepMovement() {
-        // 如果不在地面，停止 Creep
-        if (currentPosition != Position.FLOOR) {
-            currentState = State.IDLE;
-            vx = 0; vy = 0;
-            return;
-        }
-
-        // 施加移动速度
-        float creepSpeed = 1.5f; // 爬行速度稍慢
-        if (currentDirection == Direction.RIGHT) {
-            vx = creepSpeed;
-        } else if (currentDirection == Direction.LEFT) {
-            vx = -creepSpeed;
-        } else {
-            // 如果没有明确方向，根据上一次记录的方向决定，或者随机
-            if (lastNonNoneDirection == Direction.RIGHT) vx = creepSpeed;
-            else vx = -creepSpeed;
-            currentDirection = (vx > 0) ? Direction.RIGHT : Direction.LEFT;
-        }
-        vy = 0; // 确保不离开地面
-
-        // 碰撞检测（左右墙壁）
-        if (x <= 0 && vx < 0) {
-            x = 0;
-            currentDirection = Direction.RIGHT;
-            lastNonNoneDirection = Direction.RIGHT;
-        } else if (x >= screenWidth - characterWidth && vx > 0) {
-            x = screenWidth - characterWidth;
-            currentDirection = Direction.LEFT;
-            lastNonNoneDirection = Direction.LEFT;
-        }
-
-        // 随机停止逻辑：避免一直爬下去
-        if (random.nextInt(200) < 1) { // 约每3-4秒有几率停止
-            currentState = State.IDLE;
-            vx = 0;
-        }
-    }
-
     private void startMovement() {
+        // 只有当前位置不是 AIR（即在某个表面上）时才开始移动
         if (currentPosition == Position.AIR) {
             currentState = State.IDLE;
             return;
@@ -579,7 +571,7 @@ public class UsagiView extends View {
             case FLOOR:
                 boolean moveRight = random.nextBoolean();
                 vx = moveRight ? moveSpeedMagnitude : -moveSpeedMagnitude;
-                vy = 0;
+                vy = 0; // 强制垂直速度为0
                 currentDirection = moveRight ? Direction.RIGHT : Direction.LEFT;
                 lastNonNoneDirection = currentDirection;
                 moveStartX = x;
@@ -589,7 +581,7 @@ public class UsagiView extends View {
             case CEILING:
                 boolean ceilingMoveRight = random.nextBoolean();
                 vx = ceilingMoveRight ? moveSpeedMagnitude : -moveSpeedMagnitude;
-                vy = 0;
+                vy = 0; // 强制垂直速度为0
                 currentDirection = ceilingMoveRight ? Direction.RIGHT : Direction.LEFT;
                 lastNonNoneDirection = currentDirection;
                 moveStartX = x;
@@ -600,7 +592,7 @@ public class UsagiView extends View {
             case WALL_RIGHT:
                 boolean moveDown = random.nextBoolean();
                 vy = moveDown ? moveSpeedMagnitude : -moveSpeedMagnitude;
-                vx = 0;
+                vx = 0; // 强制水平速度为0
                 currentDirection = moveDown ? Direction.DOWN : Direction.UP;
                 moveStartY = y;
                 targetMoveDistance = screenHeight * (0.2f + random.nextFloat() * 0.3f);
@@ -609,14 +601,19 @@ public class UsagiView extends View {
     }
 
     private void handleMovement() {
+        // 边界碰撞检测与状态转换（移动时）
+
         // 天花板/地面移动检测
         if (currentPosition == Position.CEILING || currentPosition == Position.FLOOR) {
+            // 距离检测
             if (Math.abs(x - moveStartX) >= targetMoveDistance) {
-                stopMovement();
+                stopMovement(); // 到达目标距离，停止
                 return;
             }
 
+            // 撞墙检测
             if ((x <= 0 && vx < 0) || (x >= screenWidth - characterWidth && vx > 0)) {
+                // 撞墙，转向墙壁移动
                 if (x <= 0) {
                     currentPosition = Position.WALL_LEFT;
                     x = 0;
@@ -624,9 +621,11 @@ public class UsagiView extends View {
                     currentPosition = Position.WALL_RIGHT;
                     x = screenWidth - characterWidth;
                 }
+                // 重置速度向量：沿墙移动
                 vx = 0;
                 vy = (random.nextBoolean() ? 1 : -1) * moveSpeedMagnitude;
                 currentDirection = (vy > 0) ? Direction.DOWN : Direction.UP;
+                // 重置移动起点和距离
                 moveStartY = y;
                 targetMoveDistance = screenHeight * 0.3f;
             }
@@ -638,6 +637,7 @@ public class UsagiView extends View {
                 return;
             }
 
+            // 撞顶/底检测
             if ((y <= 0 && vy < 0) || (y >= screenHeight - characterHeight && vy > 0)) {
                 if (y <= 0) {
                     currentPosition = Position.CEILING;
@@ -646,10 +646,12 @@ public class UsagiView extends View {
                     currentPosition = Position.FLOOR;
                     y = screenHeight - characterHeight;
                 }
+                // 重置速度向量：沿天花板/地面移动
                 vy = 0;
                 vx = (random.nextBoolean() ? 1 : -1) * moveSpeedMagnitude;
                 currentDirection = (vx > 0) ? Direction.RIGHT : Direction.LEFT;
                 lastNonNoneDirection = currentDirection;
+                // 重置移动起点和距离
                 moveStartX = x;
                 targetMoveDistance = screenWidth * 0.5f;
             }
@@ -660,7 +662,8 @@ public class UsagiView extends View {
         isMoving = false;
         vx = 0;
         vy = 0;
-        currentState = State.IDLE;
+        currentState = State.IDLE; // 停止后进入 IDLE，而非 ADHERING
+        // currentPosition 保持不变
     }
 
     private void performSpecialAction() {
@@ -669,27 +672,26 @@ public class UsagiView extends View {
             if (action == 0) {
                 currentState = State.TWISTING;
                 mainHandler.postDelayed(() -> {
-                    if(!isDragging && currentPosition == Position.FLOOR) {
+                    if(!isDragging && currentPosition == Position.FLOOR && currentState == State.TWISTING) {
                         currentState = State.IDLE;
                     }
                 }, 2000);
             } else if (action == 1) {
                 currentState = State.TIPPING;
                 mainHandler.postDelayed(() -> {
-                    if(!isDragging && currentPosition == Position.FLOOR) {
+                    if(!isDragging && currentPosition == Position.FLOOR && currentState == State.TIPPING) {
                         currentState = State.IDLE;
                     }
                 }, 1500);
             } else {
+                // 【修复点3：开始Creep状态时记录开始时间】
                 currentState = State.CREEPING;
-                // 进入 CREEPING 时，随机设定一个初始方向
-                if (random.nextBoolean()) {
-                    currentDirection = Direction.RIGHT;
-                    lastNonNoneDirection = Direction.RIGHT;
-                } else {
-                    currentDirection = Direction.LEFT;
-                    lastNonNoneDirection = Direction.LEFT;
-                }
+                creepStartTime = System.currentTimeMillis();
+                mainHandler.postDelayed(() -> {
+                    if(!isDragging && currentPosition == Position.FLOOR && currentState == State.CREEPING) {
+                        currentState = State.IDLE;
+                    }
+                }, CREEP_DURATION_MS);
             }
         } else {
             currentState = State.IDLE;
@@ -709,7 +711,6 @@ public class UsagiView extends View {
             lastFrameTime = now;
             currentFrameIndex++;
             Bitmap[] frames = getCurrentBitmaps();
-            // 确保 frames 不为 null (init已做保障，这里双重保险)
             if (frames != null && frames.length > 0 && currentFrameIndex >= frames.length) {
                 currentFrameIndex = 0;
             }
@@ -776,9 +777,7 @@ public class UsagiView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         Bitmap[] frames = getCurrentBitmaps();
-        // 双重检查 null，防止空指针
         if (frames == null || frames.length == 0) return;
-
         Bitmap bitmap = frames[currentFrameIndex % frames.length];
         if (bitmap != null) {
             canvas.save();
@@ -799,7 +798,7 @@ public class UsagiView extends View {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 isDragging = true;
-                isMoving = false;
+                isMoving = false; // 拖动打断AI移动
                 lastTouchX = rawX;
                 lastTouchY = rawY;
                 lastTouchTime = System.currentTimeMillis();
@@ -848,7 +847,7 @@ public class UsagiView extends View {
         final float EPS = 2f;
         if (y <= EPS) {
             currentPosition = Position.CEILING;
-            currentState = State.IDLE;
+            currentState = State.IDLE; // 修复：直接设为IDLE，避免ADHERING卡顿
             y = 0;
         } else if (y >= screenHeight - characterHeight - EPS) {
             currentPosition = Position.FLOOR;
