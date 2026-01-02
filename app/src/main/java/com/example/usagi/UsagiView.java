@@ -4,11 +4,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.media.AudioAttributes;
 import android.media.SoundPool;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -113,11 +111,6 @@ public class UsagiView extends View {
     private float targetMoveDistance = 0;
     private float moveSpeedMagnitude = 0;
 
-    // 边缘检测
-    private boolean isNearLeftEdge = false;
-    private boolean isNearRightEdge = false;
-    private boolean isNearTopEdge = false;
-    private boolean isNearBottomEdge = false;
 
     // Creep状态移动相关
     private long creepStartTime = 0;
@@ -193,104 +186,17 @@ public class UsagiView extends View {
         
         ceilLeftFrames = loadFramesIfExists(new String[]{"ceil_1", "ceil_2", "ceil_3"}, packageName);
         ceilRightFrames = loadFramesIfExists(new String[]{"ceil_right_1", "ceil_right_2", "ceil_right_3"}, packageName);
-        if (ceilLeftFrames == null && ceilRightFrames == null) {
-            Bitmap[] commonCeil = loadFramesIfExists(new String[]{"ceil_1", "ceil_2", "ceil_3"}, packageName);
-            if (commonCeil != null) {
-                ceilLeftFrames = commonCeil;
-                ceilRightFrames = flipBitmaps(commonCeil);
-            }
-        } else if (ceilLeftFrames == null) ceilLeftFrames = flipBitmaps(ceilRightFrames);
-        else if (ceilRightFrames == null) ceilRightFrames = flipBitmaps(ceilLeftFrames);
 
         creepLeftFrames = loadFramesIfExists(new String[]{"creep_1", "creep_2"}, packageName);
         creepRightFrames = loadFramesIfExists(new String[]{"creep_right_1", "creep_right_2"}, packageName);
-        if (creepLeftFrames == null && creepRightFrames == null) {
-            Bitmap[] commonCreep = loadFramesIfExists(new String[]{"creep_1", "creep_2"}, packageName);
-            if (commonCreep != null) {
-                creepLeftFrames = commonCreep;
-                creepRightFrames = flipBitmaps(commonCreep);
-            }
-        } else if (creepLeftFrames == null) creepLeftFrames = flipBitmaps(creepRightFrames);
-        else if (creepRightFrames == null) creepRightFrames = flipBitmaps(creepLeftFrames);
-
         pinchLeftFrames = loadFramesIfExists(new String[]{"pinch_left_1", "pinch_left_2", "pinch_left_3"}, packageName);
         pinchRightFrames = loadFramesIfExists(new String[]{"pinch_right_1", "pinch_right_2", "pinch_right_3"}, packageName);
-        if (pinchLeftFrames == null && pinchRightFrames == null) {
-            Bitmap[] commonPinch = loadFramesIfExists(new String[]{"pinch_left_1", "pinch_left_2", "pinch_left_3"}, packageName);
-            if (commonPinch != null) {
-                pinchLeftFrames = commonPinch;
-                pinchRightFrames = flipBitmaps(commonPinch);
-            }
-        } else if (pinchLeftFrames == null) pinchLeftFrames = flipBitmaps(pinchRightFrames);
-        else if (pinchRightFrames == null) pinchRightFrames = flipBitmaps(pinchLeftFrames);
 
         wallLeftFrames = loadFramesIfExists(new String[]{"climb_1", "climb_2", "climb_3"}, packageName);
         wallRightFrames = loadFramesIfExists(new String[]{"climb_right_1", "climb_right_2", "climb_right_3"}, packageName);
-        if (wallLeftFrames == null && wallRightFrames == null) {
-            Bitmap[] commonWall = loadFramesIfExists(new String[]{"climb_1", "climb_2", "climb_3"}, packageName);
-            if (commonWall != null) {
-                wallLeftFrames = commonWall;
-                wallRightFrames = flipBitmaps(commonWall);
-            }
-        } else if (wallLeftFrames == null) wallLeftFrames = flipBitmaps(wallRightFrames);
-        else if (wallRightFrames == null) wallRightFrames = flipBitmaps(wallLeftFrames);
 
         twistFrames = loadFramesIfExists(new String[]{"twist_1", "twist_2", "twist_3", "twist_4"}, packageName);
         tipFrames = loadFramesIfExists(new String[]{"tip_1", "tip_2"}, packageName);
-
-        // 【修复点1：修正占位符逻辑，确保所有动画都有有效位图】
-        if (idleFrames == null || idleFrames[0] == null) {
-            idleFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        }
-        if (sitFrames == null || sitFrames[0] == null) {
-            sitFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        }
-        if (walkLeftFrames == null || walkLeftFrames[0] == null) {
-            walkLeftFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        }
-        if (walkRightFrames == null || walkRightFrames[0] == null) {
-            walkRightFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        }
-        if (fallFrames == null || fallFrames[0] == null) {
-            fallFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        }
-        if (bounceFrames == null || bounceFrames[0] == null) {
-            bounceFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        }
-        if (jumpFrames == null || jumpFrames[0] == null) {
-            jumpFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        }
-        if (ceilLeftFrames == null || ceilLeftFrames[0] == null) {
-            ceilLeftFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        }
-        if (ceilRightFrames == null || ceilRightFrames[0] == null) {
-            ceilRightFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        }
-        if (wallLeftFrames == null || wallLeftFrames[0] == null) {
-            wallLeftFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        }
-        if (wallRightFrames == null || wallRightFrames[0] == null) {
-            wallRightFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        }
-        if (creepLeftFrames == null || creepLeftFrames[0] == null) {
-            creepLeftFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        }
-        if (creepRightFrames == null || creepRightFrames[0] == null) {
-            creepRightFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        }
-        if (pinchLeftFrames == null || pinchLeftFrames[0] == null) {
-            pinchLeftFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        }
-        if (pinchRightFrames == null || pinchRightFrames[0] == null) {
-            pinchRightFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
-        }
-        // 【关键修复：确保twistFrames和tipFrames有有效的位图】
-        if (twistFrames == null || twistFrames[0] == null) {
-            twistFrames = idleFrames.clone();
-        }
-        if (tipFrames == null || tipFrames[0] == null) {
-            tipFrames = idleFrames.clone();
-        }
 
         AudioAttributes attrs = new AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_GAME)
@@ -319,18 +225,6 @@ public class UsagiView extends View {
 
     private Bitmap[] loadFramesIfExists(String[] names, String pkg) {
         return getResources().getIdentifier(names[0], "drawable", pkg) == 0 ? null : loadFrames(names, pkg);
-    }
-
-    private Bitmap[] flipBitmaps(Bitmap[] src) {
-        if (src == null) return null;
-        Bitmap[] out = new Bitmap[src.length];
-        Matrix m = new Matrix(); m.preScale(-1, 1);
-        for (int i = 0; i < src.length; i++) {
-            if (src[i] != null) {
-                out[i] = Bitmap.createBitmap(src[i], 0, 0, src[i].getWidth(), src[i].getHeight(), m, false);
-            }
-        }
-        return out;
     }
 
     // --- 核心逻辑 ---
@@ -365,8 +259,6 @@ public class UsagiView extends View {
 
     private void updatePhysics() {
         if (isDragging) { vx = 0; vy = 0; return; }
-
-        updateEdgeProximity();
 
         // 【修复点2：添加CREEPING状态的移动处理】
         if (currentState == State.CREEPING) {
@@ -500,13 +392,6 @@ public class UsagiView extends View {
         }
     }
 
-    private void updateEdgeProximity() {
-        float edgeThreshold = 10f;
-        isNearLeftEdge = (x <= edgeThreshold);
-        isNearRightEdge = (x >= screenWidth - characterWidth - edgeThreshold);
-        isNearTopEdge = (y <= edgeThreshold);
-        isNearBottomEdge = (y >= screenHeight - characterHeight - edgeThreshold);
-    }
 
     private void checkAutoAdhere() {
         if (currentState == State.ADHERING || currentState == State.MOVING) return;
@@ -756,7 +641,8 @@ public class UsagiView extends View {
                 currentState == State.CREEPING ||
                 currentState == State.TWISTING ||
                 currentState == State.TIPPING ||
-                currentState == State.FALLING);
+                currentState == State.FALLING ||
+                (currentState == State.IDLE && isMoving));
 
         if (shouldAnimate && now - lastFrameTime > frameInterval) {
             lastFrameTime = now;

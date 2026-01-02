@@ -44,6 +44,10 @@
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\tip_2.png"
     },
     {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_walk_right_1.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/walk_right_1.png"
+    },
+    {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_walk_right_1.png.flat",
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\walk_right_1.png"
     },
@@ -254,6 +258,10 @@
     {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_twist_1.png.flat",
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\twist_1.png"
+    },
+    {
+        "merged": "com.example.usagi.app-merged_res-35:/drawable_walk_right_2.png.flat",
+        "source": "com.example.usagi.app-main-37:/drawable/walk_right_2.png"
     },
     {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_ceil_right_2.png.flat",
