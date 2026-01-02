@@ -65,8 +65,11 @@ public class UsagiView extends View {
     private Direction lastNonNoneDirection = Direction.RIGHT;
 
     // 资源管理
-    private Bitmap[] idleFrames, walkLeftFrames, walkRightFrames, fallFrames;
-    private Bitmap[] wallLeftFrames, wallRightFrames, ceilFrames, creepFrames;
+    private Bitmap[] idleFrames, sitFrames, walkLeftFrames, walkRightFrames, fallFrames;
+    private Bitmap[] wallLeftFrames, wallRightFrames, ceilLeftFrames, ceilRightFrames;
+    private Bitmap[] creepLeftFrames, creepRightFrames;
+    private Bitmap[] pinchLeftFrames, pinchRightFrames;
+    private Bitmap[] bounceFrames, jumpFrames;
     private Bitmap[] twistFrames, tipFrames;
     private SoundPool soundPool;
     private List<Integer> soundIds;
@@ -180,6 +183,8 @@ public class UsagiView extends View {
     private void loadResources() {
         String packageName = context.getPackageName();
         idleFrames = loadFrames(new String[]{"stand_1"}, packageName);
+        sitFrames = loadFramesIfExists(new String[]{"sit_1"}, packageName);
+        
         walkLeftFrames = loadFramesIfExists(new String[]{"walk_1", "walk_2"}, packageName);
         walkRightFrames = loadFramesIfExists(new String[]{"walk_right_1", "walk_right_2"}, packageName);
         if (walkLeftFrames == null && walkRightFrames == null) {
@@ -192,29 +197,62 @@ public class UsagiView extends View {
         else if (walkRightFrames == null) walkRightFrames = flipBitmaps(walkLeftFrames);
 
         fallFrames = loadFramesIfExists(new String[]{"fall_1"}, packageName);
-        ceilLeftFrames = loadFramesIfExists(new String[]{"ceil_1", "ceil_2"}, packageName);
-        ceilRightFrames = loadFramesIfExists(new String[]{"ceil_right_1", "ceil_right_2"}, packageName);
+        bounceFrames = loadFramesIfExists(new String[]{"bounce_1", "bounce_2"}, packageName);
+        jumpFrames = loadFramesIfExists(new String[]{"jump_1"}, packageName);
+        
+        ceilLeftFrames = loadFramesIfExists(new String[]{"ceil_1", "ceil_2", "ceil_3"}, packageName);
+        ceilRightFrames = loadFramesIfExists(new String[]{"ceil_right_1", "ceil_right_2", "ceil_right_3"}, packageName);
+        if (ceilLeftFrames == null && ceilRightFrames == null) {
+            Bitmap[] commonCeil = loadFramesIfExists(new String[]{"ceil_1", "ceil_2", "ceil_3"}, packageName);
+            if (commonCeil != null) {
+                ceilLeftFrames = commonCeil;
+                ceilRightFrames = flipBitmaps(commonCeil);
+            }
+        } else if (ceilLeftFrames == null) ceilLeftFrames = flipBitmaps(ceilRightFrames);
+        else if (ceilRightFrames == null) ceilRightFrames = flipBitmaps(ceilLeftFrames);
+
         creepLeftFrames = loadFramesIfExists(new String[]{"creep_1", "creep_2"}, packageName);
         creepRightFrames = loadFramesIfExists(new String[]{"creep_right_1", "creep_right_2"}, packageName);
-        pinchLeftFrames = loadFramesIfExists(new String[]{"pinch_left_1", "pinch_left_2"}, packageName);
-        pinchRightFrames = loadFramesIfExists(new String[]{"pinch_right_1", "pinch_right_2"}, packageName);
-        twistFrames = loadFramesIfExists(new String[]{"twist_1", "twist_2"}, packageName);
-        tipFrames = loadFramesIfExists(new String[]{"tip_1,tip_2"}, packageName);
+        if (creepLeftFrames == null && creepRightFrames == null) {
+            Bitmap[] commonCreep = loadFramesIfExists(new String[]{"creep_1", "creep_2"}, packageName);
+            if (commonCreep != null) {
+                creepLeftFrames = commonCreep;
+                creepRightFrames = flipBitmaps(commonCreep);
+            }
+        } else if (creepLeftFrames == null) creepLeftFrames = flipBitmaps(creepRightFrames);
+        else if (creepRightFrames == null) creepRightFrames = flipBitmaps(creepLeftFrames);
 
-        wallLeftFrames = loadFramesIfExists(new String[]{"climb_left_1", "climb_left_2"}, packageName);
-        wallRightFrames = loadFramesIfExists(new String[]{"climb_right_1", "climb_right_2"}, packageName);
+        pinchLeftFrames = loadFramesIfExists(new String[]{"pinch_left_1", "pinch_left_2", "pinch_left_3"}, packageName);
+        pinchRightFrames = loadFramesIfExists(new String[]{"pinch_right_1", "pinch_right_2", "pinch_right_3"}, packageName);
+        if (pinchLeftFrames == null && pinchRightFrames == null) {
+            Bitmap[] commonPinch = loadFramesIfExists(new String[]{"pinch_left_1", "pinch_left_2", "pinch_left_3"}, packageName);
+            if (commonPinch != null) {
+                pinchLeftFrames = commonPinch;
+                pinchRightFrames = flipBitmaps(commonPinch);
+            }
+        } else if (pinchLeftFrames == null) pinchLeftFrames = flipBitmaps(pinchRightFrames);
+        else if (pinchRightFrames == null) pinchRightFrames = flipBitmaps(pinchLeftFrames);
+
+        wallLeftFrames = loadFramesIfExists(new String[]{"climb_1", "climb_2", "climb_3"}, packageName);
+        wallRightFrames = loadFramesIfExists(new String[]{"climb_right_1", "climb_right_2", "climb_right_3"}, packageName);
         if (wallLeftFrames == null && wallRightFrames == null) {
-            Bitmap[] commonWall = loadFramesIfExists(new String[]{"climb_1", "climb_2"}, packageName);
+            Bitmap[] commonWall = loadFramesIfExists(new String[]{"climb_1", "climb_2", "climb_3"}, packageName);
             if (commonWall != null) {
-                wallRightFrames = commonWall;
-                wallLeftFrames = flipBitmaps(commonWall);
+                wallLeftFrames = commonWall;
+                wallRightFrames = flipBitmaps(commonWall);
             }
         } else if (wallLeftFrames == null) wallLeftFrames = flipBitmaps(wallRightFrames);
         else if (wallRightFrames == null) wallRightFrames = flipBitmaps(wallLeftFrames);
 
+        twistFrames = loadFramesIfExists(new String[]{"twist_1", "twist_2", "twist_3", "twist_4"}, packageName);
+        tipFrames = loadFramesIfExists(new String[]{"tip_1", "tip_2"}, packageName);
+
         // 【修复点1：修正占位符逻辑，确保所有动画都有有效位图】
         if (idleFrames == null || idleFrames[0] == null) {
             idleFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        }
+        if (sitFrames == null || sitFrames[0] == null) {
+            sitFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
         }
         if (walkLeftFrames == null || walkLeftFrames[0] == null) {
             walkLeftFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
@@ -225,8 +263,17 @@ public class UsagiView extends View {
         if (fallFrames == null || fallFrames[0] == null) {
             fallFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
         }
-        if (ceilFrames == null || ceilFrames[0] == null) {
-            ceilFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        if (bounceFrames == null || bounceFrames[0] == null) {
+            bounceFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        }
+        if (jumpFrames == null || jumpFrames[0] == null) {
+            jumpFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        }
+        if (ceilLeftFrames == null || ceilLeftFrames[0] == null) {
+            ceilLeftFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        }
+        if (ceilRightFrames == null || ceilRightFrames[0] == null) {
+            ceilRightFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
         }
         if (wallLeftFrames == null || wallLeftFrames[0] == null) {
             wallLeftFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
@@ -234,16 +281,23 @@ public class UsagiView extends View {
         if (wallRightFrames == null || wallRightFrames[0] == null) {
             wallRightFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
         }
-        if (creepFrames == null || creepFrames[0] == null) {
-            creepFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        if (creepLeftFrames == null || creepLeftFrames[0] == null) {
+            creepLeftFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        }
+        if (creepRightFrames == null || creepRightFrames[0] == null) {
+            creepRightFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        }
+        if (pinchLeftFrames == null || pinchLeftFrames[0] == null) {
+            pinchLeftFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
+        }
+        if (pinchRightFrames == null || pinchRightFrames[0] == null) {
+            pinchRightFrames = new Bitmap[]{createPlaceholderBitmap(characterWidth, characterHeight)};
         }
         // 【关键修复：确保twistFrames和tipFrames有有效的位图】
         if (twistFrames == null || twistFrames[0] == null) {
-            // 如果没有twist动画，使用idleFrames作为替代
             twistFrames = idleFrames.clone();
         }
         if (tipFrames == null || tipFrames[0] == null) {
-            // 如果没有tip动画，使用idleFrames作为替代
             tipFrames = idleFrames.clone();
         }
 
@@ -332,7 +386,6 @@ public class UsagiView extends View {
                     // Creep时间结束，回到IDLE状态
                     currentState = State.IDLE;
                     vx = 0;
-                    vy = 0;
                 } else {
                     // 根据最后的方向移动
                     if (lastNonNoneDirection == Direction.LEFT) {
@@ -340,8 +393,8 @@ public class UsagiView extends View {
                     } else {
                         vx = creepSpeed;
                     }
-                    vy = 0;
                 }
+                vy = 0;
             }
         }
 
@@ -726,10 +779,19 @@ public class UsagiView extends View {
         }
     }
 
+    private Bitmap[] getCeilBitmaps() {
+        if (currentDirection == Direction.LEFT ||
+                (currentDirection == Direction.NONE && lastNonNoneDirection == Direction.LEFT)) {
+            return ceilLeftFrames;
+        } else {
+            return ceilRightFrames;
+        }
+    }
+
     private Bitmap[] getCurrentBitmaps() {
         switch (currentState) {
             case FALLING: return fallFrames;
-            case CREEPING: return creepFrames;
+            case CREEPING: return getCreepBitmaps();
             case TWISTING: return twistFrames;
             case TIPPING: return tipFrames;
             case MOVING: return getMovingBitmaps();
@@ -741,30 +803,41 @@ public class UsagiView extends View {
 
     private Bitmap[] getMovingBitmaps() {
         switch (currentPosition) {
-            case WALL_LEFT: return (wallRightFrames != null) ? wallRightFrames : wallLeftFrames;
-            case WALL_RIGHT: return (wallLeftFrames != null) ? wallLeftFrames : wallRightFrames;
-            case CEILING: return ceilFrames;
+            case WALL_LEFT: return wallLeftFrames;
+            case WALL_RIGHT: return wallRightFrames;
+            case CEILING: return (currentDirection == Direction.LEFT) ? ceilLeftFrames : ceilRightFrames;
             case FLOOR:
             case AIR:
             default:
                 if (currentDirection == Direction.LEFT ||
                         (currentDirection == Direction.NONE && lastNonNoneDirection == Direction.LEFT)) {
-                    return (walkRightFrames != null) ? walkRightFrames : walkLeftFrames;
+                    return walkLeftFrames;
                 } else {
-                    return (walkLeftFrames != null) ? walkLeftFrames : walkRightFrames;
+                    return walkRightFrames;
                 }
         }
     }
 
     private Bitmap[] getIdleBitmaps() {
         switch (currentPosition) {
-            case CEILING: return ceilFrames;
-            case WALL_LEFT: return (wallRightFrames != null) ? wallRightFrames : wallLeftFrames;
-            case WALL_RIGHT: return (wallLeftFrames != null) ? wallLeftFrames : wallRightFrames;
+            case CEILING: return (lastNonNoneDirection == Direction.LEFT) ? ceilLeftFrames : ceilRightFrames;
+            case WALL_LEFT: return wallLeftFrames;
+            case WALL_RIGHT: return wallRightFrames;
             case FLOOR:
             case AIR:
             default: return idleFrames;
         }
+    }
+
+    private Bitmap[] getCreepBitmaps() {
+        if (currentPosition == Position.FLOOR) {
+            if (lastNonNoneDirection == Direction.LEFT) {
+                return creepLeftFrames;
+            } else {
+                return creepRightFrames;
+            }
+        }
+        return creepLeftFrames;
     }
 
     private void updateWindowLayout() {
@@ -878,11 +951,7 @@ public class UsagiView extends View {
         try {
             Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
             if (v != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     v.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
-                } else {
-                    v.vibrate(50);
-                }
             }
         } catch (Exception ignored) {}
     }
