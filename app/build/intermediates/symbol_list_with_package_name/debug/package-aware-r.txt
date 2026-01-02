@@ -3874,7 +3874,6 @@ raw wula_none
 raw wula_none_2
 raw wula_none_3
 raw wula_wula_wula_easy
-raw wula_yahayaha_happy
 raw wulayahayahawula_happy
 raw yaha_excited_4
 raw yaha_none

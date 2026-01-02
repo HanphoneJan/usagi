@@ -187,15 +187,6 @@ public class UsagiView extends View {
         
         walkLeftFrames = loadFramesIfExists(new String[]{"walk_1", "walk_2"}, packageName);
         walkRightFrames = loadFramesIfExists(new String[]{"walk_right_1", "walk_right_2"}, packageName);
-        if (walkLeftFrames == null && walkRightFrames == null) {
-            Bitmap[] commonWalk = loadFramesIfExists(new String[]{"walk_1", "walk_2"}, packageName);
-            if (commonWalk != null) {
-                walkRightFrames = commonWalk;
-                walkLeftFrames = flipBitmaps(commonWalk);
-            }
-        } else if (walkLeftFrames == null) walkLeftFrames = flipBitmaps(walkRightFrames);
-        else if (walkRightFrames == null) walkRightFrames = flipBitmaps(walkLeftFrames);
-
         fallFrames = loadFramesIfExists(new String[]{"fall_1"}, packageName);
         bounceFrames = loadFramesIfExists(new String[]{"bounce_1", "bounce_2"}, packageName);
         jumpFrames = loadFramesIfExists(new String[]{"jump_1"}, packageName);
@@ -864,8 +855,7 @@ public class UsagiView extends View {
             float drawX = 0, drawY = 0;
             if (currentPosition == Position.WALL_LEFT) drawX = -ADHERE_DRAW_OFFSET;
             else if (currentPosition == Position.WALL_RIGHT) drawX = ADHERE_DRAW_OFFSET;
-            if (currentPosition == Position.CEILING) drawY = -ADHERE_DRAW_OFFSET;
-            else if (currentPosition == Position.FLOOR) drawY = ADHERE_DRAW_OFFSET;
+            else if (currentPosition == Position.CEILING) drawY = -ADHERE_DRAW_OFFSET;
             canvas.drawBitmap(bitmap, drawX, drawY, new Paint());
             canvas.restore();
         }

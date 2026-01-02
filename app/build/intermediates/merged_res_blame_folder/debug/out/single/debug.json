@@ -16,6 +16,10 @@
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\raw\\yaha_excited_4.wav"
     },
     {
+        "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_climb_right_2.png.flat",
+        "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\climb_right_2.png"
+    },
+    {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_pinch_right_3.png.flat",
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\pinch_right_3.png"
     },
@@ -24,8 +28,8 @@
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\raw\\wulayahayahawula_happy.wav"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_creep_right_1.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/creep_right_1.png"
+        "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_ceil_right_1.png.flat",
+        "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\ceil_right_1.png"
     },
     {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_fall_1.png.flat",
@@ -40,16 +44,8 @@
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\tip_2.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_walk_right_1.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/walk_right_1.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_ceil_right_1.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/ceil_right_1.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_twist_4.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/twist_4.png"
+        "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_walk_right_1.png.flat",
+        "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\walk_right_1.png"
     },
     {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_ceil_toright1.png.flat",
@@ -80,20 +76,16 @@
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\pinch_right_2.png"
     },
     {
+        "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_climb_right_1.png.flat",
+        "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\climb_right_1.png"
+    },
+    {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\raw_yaha_none.wav.flat",
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\raw\\yaha_none.wav"
     },
     {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\raw_ha_excited.wav.flat",
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\raw\\ha_excited.wav"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_creep_right_2.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/creep_right_2.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_climb_right_3.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/climb_right_3.png"
     },
     {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_ceil_1.png.flat",
@@ -120,12 +112,12 @@
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\raw\\wu_ya_yi_ha_none.wav"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_twist_3.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/twist_3.png"
-    },
-    {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_walk_toright2.png.flat",
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\walk_toright2.png"
+    },
+    {
+        "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_twist_3.png.flat",
+        "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\twist_3.png"
     },
     {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\xml_data_extraction_rules.xml.flat",
@@ -150,6 +142,10 @@
     {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_pinch_right_1.png.flat",
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\pinch_right_1.png"
+    },
+    {
+        "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_creep_right_2.png.flat",
+        "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\creep_right_2.png"
     },
     {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\raw_wula_none_3.wav.flat",
@@ -188,16 +184,12 @@
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\jump_1.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_climb_right_1.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/climb_right_1.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_ceil_right_3.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/ceil_right_3.png"
-    },
-    {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_pinch_left_2.png.flat",
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\pinch_left_2.png"
+    },
+    {
+        "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_ceil_right_3.png.flat",
+        "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\ceil_right_3.png"
     },
     {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\raw_wula_wula_wula_easy.wav.flat",
@@ -232,8 +224,20 @@
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\creep_1.png"
     },
     {
+        "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_walk_right_2.png.flat",
+        "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\walk_right_2.png"
+    },
+    {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_bounce_1.png.flat",
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\bounce_1.png"
+    },
+    {
+        "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_creep_right_1.png.flat",
+        "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\creep_right_1.png"
+    },
+    {
+        "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_twist_4.png.flat",
+        "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\twist_4.png"
     },
     {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_climb_1.png.flat",
@@ -244,28 +248,24 @@
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\walk_toright1.png"
     },
     {
+        "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_climb_right_3.png.flat",
+        "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\climb_right_3.png"
+    },
+    {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_twist_1.png.flat",
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\twist_1.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_walk_right_2.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/walk_right_2.png"
+        "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_ceil_right_2.png.flat",
+        "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\ceil_right_2.png"
     },
     {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_climb_onright3.png.flat",
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\climb_onright3.png"
     },
     {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_climb_right_2.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/climb_right_2.png"
-    },
-    {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\drawable_pinch_left_1.png.flat",
         "source": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-main-37:\\drawable\\pinch_left_1.png"
-    },
-    {
-        "merged": "com.example.usagi.app-merged_res-35:/drawable_ceil_right_2.png.flat",
-        "source": "com.example.usagi.app-main-37:/drawable/ceil_right_2.png"
     },
     {
         "merged": "C:\\Users\\beize\\.gradle\\daemon\\8.9\\com.example.usagi.app-merged_res-35:\\raw_wula_none.wav.flat",
