@@ -74,6 +74,7 @@ public class UsagiView extends View {
     private SoundPool soundPool;
     private List<Integer> soundIds;
     private Map<String, Integer> soundNameToId;
+    private Map<String, List<Integer>> actionSounds = new HashMap<>();
     private List<Integer> activeSoundStreams = new ArrayList<>();
     private final Object soundPlayLock = new Object();
     private long lastSoundPlayTime = 0;
@@ -271,12 +272,31 @@ public class UsagiView extends View {
         soundPool = new SoundPool.Builder().setMaxStreams(8).setAudioAttributes(attrs).build();
         soundIds = new ArrayList<>();
         soundNameToId = new HashMap<>();
+        
+        // 初始化动作音效映射
+        actionSounds.put("idle", new ArrayList<>());
+        actionSounds.put("walk", new ArrayList<>());
+        actionSounds.put("twist", new ArrayList<>());
+        actionSounds.put("tip", new ArrayList<>());
+        actionSounds.put("adhere", new ArrayList<>());
+        actionSounds.put("ceil", new ArrayList<>());
+        
         try {
             Class<?> c = Class.forName(packageName + ".R$raw");
             for (Field f : c.getFields()) {
                 String name = f.getName();
                 int id = getResources().getIdentifier(name, "raw", packageName);
-                if (id > 0) soundIds.add(soundPool.load(context, id, 1));
+                if (id > 0) {
+                    int soundId = soundPool.load(context, id, 1);
+                    soundIds.add(soundId);
+                    soundNameToId.put(name, soundId);
+                    
+                    // 按动作类型分类
+                    String actionType = getActionType(name);
+                    if (actionType != null) {
+                        actionSounds.get(actionType).add(soundId);
+                    }
+                }
             }
         } catch (Exception ignored) {}
     }
@@ -291,6 +311,85 @@ public class UsagiView extends View {
 
     private Bitmap[] loadFramesIfExists(String[] names, String pkg) {
         return getResources().getIdentifier(names[0], "drawable", pkg) == 0 ? null : loadFrames(names, pkg);
+    }
+
+    // 根据文件名获取动作类型
+    private String getActionType(String soundName) {
+        if (soundName.startsWith("idle")) return "idle";
+        if (soundName.startsWith("walk")) return "walk";
+        if (soundName.startsWith("twist")) return "twist";
+        if (soundName.startsWith("tip")) return "tip";
+        if (soundName.startsWith("adhere")) return "adhere";
+        if (soundName.startsWith("ceil")) return "ceil";
+        return null;
+    }
+
+    // 根据当前状态获取对应的音效类型
+    private String getSoundTypeForCurrentState() {
+        switch (currentState) {
+            case IDLE:
+            case ADHERING:
+                return "idle";
+            case MOVING:
+                // 根据当前位置判断
+                if (currentPosition == Position.CEILING) return "ceil";
+                if (currentPosition == Position.FLOOR) return "walk";
+                return null; // 墙壁移动暂无对应音效
+            case TWISTING:
+                return "twist";
+            case TIPPING:
+                return "tip";
+            case CREEPING:
+                return "walk"; // 爬行使用行走音效
+            default:
+                return null;
+        }
+    }
+
+    // 播放对应动作的音效
+    private void playActionSound() {
+        String soundType = getSoundTypeForCurrentState();
+        if (soundType == null) return;
+        
+        List<Integer> sounds = actionSounds.get(soundType);
+        if (sounds == null || sounds.isEmpty()) return;
+        
+        // 随机选择一个音效
+        int randomSoundId = sounds.get(random.nextInt(sounds.size()));
+        playSound(randomSoundId);
+    }
+
+    private void playSound(int soundId) {
+        if (soundPool == null) return;
+        
+        mainHandler.post(() -> {
+            synchronized (soundPlayLock) {
+                long now = System.currentTimeMillis();
+                if (now - lastSoundPlayTime < SOUND_MIN_INTERVAL_MS) {
+                    return;
+                }
+                lastSoundPlayTime = now;
+                
+                // 应用音量设置
+                float volumeValue = volume / 100.0f;
+                
+                int streamId = soundPool.play(soundId, volumeValue, volumeValue, 1, 0, 1.0f);
+                
+                if (streamId > 0) {
+                    activeSoundStreams.add(streamId);
+                    soundPool.setOnLoadCompleteListener((soundPool, sampleId, status) -> {
+                        if (status == 0) {
+                            // 声音加载完成，清理已播放的stream
+                            new Handler().postDelayed(() -> {
+                                synchronized (soundPlayLock) {
+                                    activeSoundStreams.remove(Integer.valueOf(streamId));
+                                }
+                            }, 3000);
+                        }
+                    });
+                }
+            }
+        });
     }
 
     // --- 核心逻辑 ---
@@ -492,6 +591,7 @@ public class UsagiView extends View {
             targetAdherePosition = closestPos;
             currentState = State.ADHERING;
             vx = 0; vy = 0;
+            playActionSound(); // 播放吸附音效
         }
     }
 
@@ -677,6 +777,7 @@ public class UsagiView extends View {
             int action = random.nextInt(3);
             if (action == 0) {
                 currentState = State.TWISTING;
+                playActionSound(); // 播放扭动音效
                 mainHandler.postDelayed(() -> {
                     if(!isDragging && currentPosition == Position.FLOOR && currentState == State.TWISTING) {
                         currentState = State.IDLE;
@@ -684,6 +785,7 @@ public class UsagiView extends View {
                 }, 2000);
             } else if (action == 1) {
                 currentState = State.TIPPING;
+                playActionSound(); // 播放摔倒音效
                 mainHandler.postDelayed(() -> {
                     if(!isDragging && currentPosition == Position.FLOOR && currentState == State.TIPPING) {
                         currentState = State.IDLE;
@@ -945,44 +1047,10 @@ public class UsagiView extends View {
         if (soundHandler == null) return;
         soundHandler.postDelayed(new Runnable() {
             @Override public void run() {
-                playRandomSound();
+                playActionSound(); // 播放对应动作的音效
                 int delay = SCHEDULE_MIN_MS + random.nextInt(SCHEDULE_MAX_MS - SCHEDULE_MIN_MS + 1);
                 soundHandler.postDelayed(this, delay);
             }
         }, SCHEDULE_MIN_MS + random.nextInt(SCHEDULE_MAX_MS - SCHEDULE_MIN_MS + 1));
-    }
-
-    private void playRandomSound() {
-        if (soundPool == null || soundIds == null || soundIds.isEmpty()) return;
-
-        mainHandler.post(() -> {
-            synchronized (soundPlayLock) {
-                long now = System.currentTimeMillis();
-                if (now - lastSoundPlayTime < SOUND_MIN_INTERVAL_MS) {
-                    return;
-                }
-                lastSoundPlayTime = now;
-
-                // 应用音量设置
-                float volumeValue = volume / 100.0f;
-
-                int randomSoundId = soundIds.get(random.nextInt(soundIds.size()));
-                int streamId = soundPool.play(randomSoundId, volumeValue, volumeValue, 1, 0, 1.0f);
-
-                if (streamId > 0) {
-                    activeSoundStreams.add(streamId);
-                    soundPool.setOnLoadCompleteListener((soundPool, sampleId, status) -> {
-                        if (status == 0) {
-                            // 声音加载完成，清理已播放的stream
-                            new Handler().postDelayed(() -> {
-                                synchronized (soundPlayLock) {
-                                    activeSoundStreams.remove(Integer.valueOf(streamId));
-                                }
-                            }, 3000);
-                        }
-                    });
-                }
-            }
-        });
     }
 }
