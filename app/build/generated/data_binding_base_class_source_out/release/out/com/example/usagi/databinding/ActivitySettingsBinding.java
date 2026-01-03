@@ -4,6 +4,8 @@ package com.example.usagi.databinding;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -21,6 +23,15 @@ import java.lang.String;
 public final class ActivitySettingsBinding implements ViewBinding {
   @NonNull
   private final ConstraintLayout rootView;
+
+  @NonNull
+  public final Button btnClearBackground;
+
+  @NonNull
+  public final Button btnSelectBackground;
+
+  @NonNull
+  public final ImageView ivBackgroundPreview;
 
   @NonNull
   public final LinearLayout llAutoStart;
@@ -41,6 +52,9 @@ public final class ActivitySettingsBinding implements ViewBinding {
   public final Switch swShowUsagi;
 
   @NonNull
+  public final TextView tvBackgroundTitle;
+
+  @NonNull
   public final TextView tvSpeed;
 
   @NonNull
@@ -53,17 +67,23 @@ public final class ActivitySettingsBinding implements ViewBinding {
   public final TextView tvVolumeTitle;
 
   private ActivitySettingsBinding(@NonNull ConstraintLayout rootView,
-      @NonNull LinearLayout llAutoStart, @NonNull LinearLayout llShowUsagi,
-      @NonNull SeekBar sbSpeed, @NonNull SeekBar sbVolume, @NonNull Switch swAutoStart,
-      @NonNull Switch swShowUsagi, @NonNull TextView tvSpeed, @NonNull TextView tvSpeedTitle,
-      @NonNull TextView tvVolume, @NonNull TextView tvVolumeTitle) {
+      @NonNull Button btnClearBackground, @NonNull Button btnSelectBackground,
+      @NonNull ImageView ivBackgroundPreview, @NonNull LinearLayout llAutoStart,
+      @NonNull LinearLayout llShowUsagi, @NonNull SeekBar sbSpeed, @NonNull SeekBar sbVolume,
+      @NonNull Switch swAutoStart, @NonNull Switch swShowUsagi, @NonNull TextView tvBackgroundTitle,
+      @NonNull TextView tvSpeed, @NonNull TextView tvSpeedTitle, @NonNull TextView tvVolume,
+      @NonNull TextView tvVolumeTitle) {
     this.rootView = rootView;
+    this.btnClearBackground = btnClearBackground;
+    this.btnSelectBackground = btnSelectBackground;
+    this.ivBackgroundPreview = ivBackgroundPreview;
     this.llAutoStart = llAutoStart;
     this.llShowUsagi = llShowUsagi;
     this.sbSpeed = sbSpeed;
     this.sbVolume = sbVolume;
     this.swAutoStart = swAutoStart;
     this.swShowUsagi = swShowUsagi;
+    this.tvBackgroundTitle = tvBackgroundTitle;
     this.tvSpeed = tvSpeed;
     this.tvSpeedTitle = tvSpeedTitle;
     this.tvVolume = tvVolume;
@@ -97,6 +117,24 @@ public final class ActivitySettingsBinding implements ViewBinding {
     // This is done to optimize the compiled bytecode for size and performance.
     int id;
     missingId: {
+      id = R.id.btn_clear_background;
+      Button btnClearBackground = ViewBindings.findChildViewById(rootView, id);
+      if (btnClearBackground == null) {
+        break missingId;
+      }
+
+      id = R.id.btn_select_background;
+      Button btnSelectBackground = ViewBindings.findChildViewById(rootView, id);
+      if (btnSelectBackground == null) {
+        break missingId;
+      }
+
+      id = R.id.iv_background_preview;
+      ImageView ivBackgroundPreview = ViewBindings.findChildViewById(rootView, id);
+      if (ivBackgroundPreview == null) {
+        break missingId;
+      }
+
       id = R.id.ll_auto_start;
       LinearLayout llAutoStart = ViewBindings.findChildViewById(rootView, id);
       if (llAutoStart == null) {
@@ -133,6 +171,12 @@ public final class ActivitySettingsBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.tv_background_title;
+      TextView tvBackgroundTitle = ViewBindings.findChildViewById(rootView, id);
+      if (tvBackgroundTitle == null) {
+        break missingId;
+      }
+
       id = R.id.tv_speed;
       TextView tvSpeed = ViewBindings.findChildViewById(rootView, id);
       if (tvSpeed == null) {
@@ -157,8 +201,9 @@ public final class ActivitySettingsBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivitySettingsBinding((ConstraintLayout) rootView, llAutoStart, llShowUsagi,
-          sbSpeed, sbVolume, swAutoStart, swShowUsagi, tvSpeed, tvSpeedTitle, tvVolume,
+      return new ActivitySettingsBinding((ConstraintLayout) rootView, btnClearBackground,
+          btnSelectBackground, ivBackgroundPreview, llAutoStart, llShowUsagi, sbSpeed, sbVolume,
+          swAutoStart, swShowUsagi, tvBackgroundTitle, tvSpeed, tvSpeedTitle, tvVolume,
           tvVolumeTitle);
     }
     String missingId = rootView.getResources().getResourceName(id);

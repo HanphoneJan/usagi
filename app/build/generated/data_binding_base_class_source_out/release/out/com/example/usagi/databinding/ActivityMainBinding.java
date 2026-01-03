@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -28,12 +29,21 @@ public final class ActivityMainBinding implements ViewBinding {
   @NonNull
   public final Button btnStop;
 
+  @NonNull
+  public final ImageView ivBackground;
+
+  @NonNull
+  public final ConstraintLayout mainLayout;
+
   private ActivityMainBinding(@NonNull ConstraintLayout rootView, @NonNull Button btnSettings,
-      @NonNull Button btnStart, @NonNull Button btnStop) {
+      @NonNull Button btnStart, @NonNull Button btnStop, @NonNull ImageView ivBackground,
+      @NonNull ConstraintLayout mainLayout) {
     this.rootView = rootView;
     this.btnSettings = btnSettings;
     this.btnStart = btnStart;
     this.btnStop = btnStop;
+    this.ivBackground = ivBackground;
+    this.mainLayout = mainLayout;
   }
 
   @Override
@@ -81,7 +91,16 @@ public final class ActivityMainBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityMainBinding((ConstraintLayout) rootView, btnSettings, btnStart, btnStop);
+      id = R.id.iv_background;
+      ImageView ivBackground = ViewBindings.findChildViewById(rootView, id);
+      if (ivBackground == null) {
+        break missingId;
+      }
+
+      ConstraintLayout mainLayout = (ConstraintLayout) rootView;
+
+      return new ActivityMainBinding((ConstraintLayout) rootView, btnSettings, btnStart, btnStop,
+          ivBackground, mainLayout);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

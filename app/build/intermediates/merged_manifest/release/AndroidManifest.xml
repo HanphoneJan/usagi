@@ -24,6 +24,10 @@
     <!-- 震动权限 -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- 读取外部存储权限（用于选择背景图片） -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
     <permission
         android:name="com.example.usagi.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
         android:protectionLevel="signature" />

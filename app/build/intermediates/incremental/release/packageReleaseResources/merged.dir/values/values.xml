@@ -21,7 +21,7 @@
     <string name="start_usagi">启动桌宠</string>
     <string name="stop_usagi">停止桌宠</string>
     <string name="volume">音量</string>
-    <style name="Theme.Usagi" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+    <style name="Theme.Usagi" parent="Theme.MaterialComponents.Light">
         
         <item name="colorPrimary">@color/usagi_yellow_primary</item>
         <item name="colorPrimaryVariant">@color/usagi_yellow_primary_dark</item>
