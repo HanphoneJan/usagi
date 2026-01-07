@@ -34,8 +34,8 @@ public class UsagiView extends View {
     private static final float AIR_FRICTION = 0.98f;
     private static final float ADHERE_SPEED = 0.2f;
     private static final float EDGE_SNAP_EPS = 6f;
-    private static final int ADHERE_DRAW_OFFSET = 88;
-    private static final int DRAW_OFFSET = 64;
+    private static final int ADHERE_DRAW_OFFSET_Y = 64;
+    private static final int ADHERE_DRAW_OFFSET_X = 70;
     private static final int THROW_THRESHOLD = 5;
 
     // 状态枚举
@@ -78,7 +78,7 @@ public class UsagiView extends View {
     private List<Integer> activeSoundStreams = new ArrayList<>();
     private final Object soundPlayLock = new Object();
     private long lastSoundPlayTime = 0;
-    private static final long SOUND_MIN_INTERVAL_MS = 100000;
+    private static final long SOUND_MIN_INTERVAL_MS = 30000;
     private Random random = new Random();
 
     // 线程控制
@@ -893,9 +893,9 @@ public class UsagiView extends View {
         if (layoutParams == null) layoutParams = (WindowManager.LayoutParams) getLayoutParams();
         if (layoutParams != null) {
             int offsetX = 0, offsetY = 0;
-            if (currentPosition == Position.WALL_LEFT) offsetX -= ADHERE_DRAW_OFFSET;
-            else if (currentPosition == Position.WALL_RIGHT) offsetX += ADHERE_DRAW_OFFSET;
-            else if (currentPosition == Position.CEILING) offsetY -= ADHERE_DRAW_OFFSET;
+            if (currentPosition == Position.WALL_LEFT) offsetX -= ADHERE_DRAW_OFFSET_X;
+            else if (currentPosition == Position.WALL_RIGHT) offsetX += ADHERE_DRAW_OFFSET_X;
+            else if (currentPosition == Position.CEILING) offsetY -= ADHERE_DRAW_OFFSET_Y;
             layoutParams.x = (int) (x + offsetX);
             layoutParams.y = (int) (y + offsetY);
             windowManager.updateViewLayout(this, layoutParams);
@@ -912,9 +912,9 @@ public class UsagiView extends View {
         if (bitmap != null) {
             canvas.save();
             float drawX = 0, drawY = 0;
-            if (currentPosition == Position.WALL_LEFT) drawX = -ADHERE_DRAW_OFFSET;
-            else if (currentPosition == Position.WALL_RIGHT) drawX = ADHERE_DRAW_OFFSET;
-            else if (currentPosition == Position.CEILING) drawY = -ADHERE_DRAW_OFFSET;
+            if (currentPosition == Position.WALL_LEFT) drawX = -ADHERE_DRAW_OFFSET_X;
+            else if (currentPosition == Position.WALL_RIGHT) drawX = ADHERE_DRAW_OFFSET_X;
+            else if (currentPosition == Position.CEILING) drawY = -ADHERE_DRAW_OFFSET_Y;
             canvas.drawBitmap(bitmap, drawX, drawY, new Paint());
             canvas.restore();
         }
@@ -929,17 +929,17 @@ public class UsagiView extends View {
         // updateWindowLayout中应用的偏移量
         if (layoutParams != null) {
             int offsetX = 0, offsetY = 0;
-            if (currentPosition == Position.WALL_LEFT) offsetX -= ADHERE_DRAW_OFFSET;
-            else if (currentPosition == Position.WALL_RIGHT) offsetX += ADHERE_DRAW_OFFSET;
-            else if (currentPosition == Position.CEILING) offsetY -= ADHERE_DRAW_OFFSET;
+            if (currentPosition == Position.WALL_LEFT) offsetX -= ADHERE_DRAW_OFFSET_X;
+            else if (currentPosition == Position.WALL_RIGHT) offsetX += ADHERE_DRAW_OFFSET_X;
+            else if (currentPosition == Position.CEILING) offsetY -= ADHERE_DRAW_OFFSET_Y;
             characterScreenX += offsetX;
             characterScreenY += offsetY;
         }
         
         // 角色实际绘制偏移（与onDraw中的drawX/drawY对应）
-        if (currentPosition == Position.WALL_LEFT) characterScreenX -= ADHERE_DRAW_OFFSET;
-        else if (currentPosition == Position.WALL_RIGHT) characterScreenX += ADHERE_DRAW_OFFSET;
-        else if (currentPosition == Position.CEILING) characterScreenY -= ADHERE_DRAW_OFFSET;
+        if (currentPosition == Position.WALL_LEFT) characterScreenX -= ADHERE_DRAW_OFFSET_X;
+        else if (currentPosition == Position.WALL_RIGHT) characterScreenX += ADHERE_DRAW_OFFSET_X;
+        else if (currentPosition == Position.CEILING) characterScreenY -= ADHERE_DRAW_OFFSET_Y;
 
         // 判断触摸点是否在角色矩形内
         return rawTouchX >= characterScreenX && rawTouchX <= characterScreenX + characterWidth &&
