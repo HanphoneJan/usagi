@@ -35,8 +35,8 @@ public class UsagiView extends View {
     private static final float AIR_FRICTION = 0.98f;
     private static final float ADHERE_SPEED = 0.2f;
     private static final float EDGE_SNAP_EPS = 6f;
-    private static final int ADHERE_DRAW_OFFSET_Y = 86;
-    private static final int ADHERE_DRAW_OFFSET_X = 86;
+    private static final int ADHERE_DRAW_OFFSET_Y = 44;
+    private static final int ADHERE_DRAW_OFFSET_X = 68;
     private static final int THROW_THRESHOLD = 5;
 
     // 状态枚举
