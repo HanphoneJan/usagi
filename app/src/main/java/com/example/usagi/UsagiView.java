@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.media.AudioAttributes;
 import android.media.SoundPool;
 import android.os.Handler;
@@ -14,10 +15,10 @@ import android.os.Looper;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.WindowMetrics;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -34,8 +35,8 @@ public class UsagiView extends View {
     private static final float AIR_FRICTION = 0.98f;
     private static final float ADHERE_SPEED = 0.2f;
     private static final float EDGE_SNAP_EPS = 6f;
-    private static final int ADHERE_DRAW_OFFSET_Y = 64;
-    private static final int ADHERE_DRAW_OFFSET_X = 70;
+    private static final int ADHERE_DRAW_OFFSET_Y = 86;
+    private static final int ADHERE_DRAW_OFFSET_X = 86;
     private static final int THROW_THRESHOLD = 5;
 
     // 状态枚举
@@ -140,10 +141,11 @@ public class UsagiView extends View {
 
     private void init() {
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        DisplayMetrics metrics = new DisplayMetrics();
-        windowManager.getDefaultDisplay().getMetrics(metrics);
-        screenWidth = metrics.widthPixels;
-        screenHeight = metrics.heightPixels;
+        // 获取物理屏幕尺寸（包含状态栏、导航栏等整个屏幕区域）
+        WindowMetrics windowMetrics = windowManager.getMaximumWindowMetrics();
+        Rect bounds = windowMetrics.getBounds();
+        screenWidth = bounds.width();
+        screenHeight = bounds.height();
 
         characterWidth = 128;
         characterHeight = 128;
