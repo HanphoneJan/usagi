@@ -139,13 +139,31 @@ public class UsagiView extends View {
         init();
     }
 
+    // 获取实际可用屏幕尺寸（排除状态栏、导航栏等）
+    private void updateScreenDimensions() {
+        WindowMetrics windowMetrics = windowManager.getCurrentWindowMetrics();
+        Rect bounds = windowMetrics.getBounds();
+
+        // 获取 WindowInsets 来计算可用区域
+        android.view.WindowInsets windowInsets = windowMetrics.getWindowInsets();
+        android.graphics.Insets insets = windowInsets.getInsetsIgnoringVisibility(
+            android.view.WindowInsets.Type.systemBars() |
+            android.view.WindowInsets.Type.displayCutout()
+        );
+
+        // 计算实际可用区域
+        screenWidth = bounds.width() - insets.left - insets.right;
+        screenHeight = bounds.height() - insets.top - insets.bottom;
+
+        // 确保最小值不为0
+        if (screenWidth <= 0) screenWidth = bounds.width();
+        if (screenHeight <= 0) screenHeight = bounds.height();
+    }
+
     private void init() {
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        // 获取物理屏幕尺寸（包含状态栏、导航栏等整个屏幕区域）
-        WindowMetrics windowMetrics = windowManager.getMaximumWindowMetrics();
-        Rect bounds = windowMetrics.getBounds();
-        screenWidth = bounds.width();
-        screenHeight = bounds.height();
+        // 使用新的方法获取可用屏幕尺寸
+        updateScreenDimensions();
 
         characterWidth = 128;
         characterHeight = 128;
@@ -1036,6 +1054,14 @@ public class UsagiView extends View {
                     v.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
             }
         } catch (Exception ignored) {}
+    }
+
+    // 公共方法：更新屏幕尺寸（屏幕旋转时调用）
+    public void updateScreenSize() {
+        updateScreenDimensions();
+        // 确保桌宠位置在新的屏幕边界内
+        x = Math.max(0, Math.min(x, screenWidth - characterWidth));
+        y = Math.max(0, Math.min(y, screenHeight - characterHeight));
     }
 
     // --- 后台音效播放线程 ---
