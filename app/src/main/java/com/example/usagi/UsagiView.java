@@ -571,6 +571,10 @@ public class UsagiView extends View {
         x = nextX;
         y = nextY;
 
+        // 硬边界保护：确保位置不会超出屏幕（防止高速移动时越界）
+        x = Math.max(0, Math.min(x, screenWidth - characterWidth));
+        y = Math.max(0, Math.min(y, screenHeight - characterHeight));
+
         // 自动吸附逻辑：仅当静止且非移动状态时触发
         if (!collisionOccurred && (Math.abs(vx) < 0.5f && Math.abs(vy) < 0.5f)) {
             checkAutoAdhere();
@@ -782,6 +786,10 @@ public class UsagiView extends View {
                 targetMoveDistance = screenWidth * 0.5f;
             }
         }
+
+        // 确保位置在屏幕边界内
+        x = Math.max(0, Math.min(x, screenWidth - characterWidth));
+        y = Math.max(0, Math.min(y, screenHeight - characterHeight));
     }
 
     private void stopMovement() {
