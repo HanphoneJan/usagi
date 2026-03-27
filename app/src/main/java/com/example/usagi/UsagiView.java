@@ -34,7 +34,8 @@ public class UsagiView extends View {
     private static final float BOUNCE_DAMPING = 0.5f;
     private static final float AIR_FRICTION = 0.98f;
     private static final float ADHERE_SPEED = 0.2f;
-    private static final float EDGE_SNAP_EPS = 6f;
+    private static final float EDGE_SNAP_DP = 16f; // 16dp 的吸附阈值
+    private float edgeSnapThresholdPx; // 将根据屏幕密度计算的实际像素值
     private static final int ADHERE_DRAW_OFFSET_Y = 44;
     private static final int ADHERE_DRAW_OFFSET_X = 68;
     private static final int THROW_THRESHOLD = 5;
@@ -164,6 +165,10 @@ public class UsagiView extends View {
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         // 使用新的方法获取可用屏幕尺寸
         updateScreenDimensions();
+
+        // 计算 dp 对应的像素值
+        float density = context.getResources().getDisplayMetrics().density;
+        edgeSnapThresholdPx = EDGE_SNAP_DP * density;
 
         characterWidth = 128;
         characterHeight = 128;
@@ -597,16 +602,16 @@ public class UsagiView extends View {
         float distToLeftWall = Math.abs(x);
         float distToRightWall = Math.abs(screenWidth - characterWidth - x);
 
-        if (distToFloor < EDGE_SNAP_EPS && distToFloor < minDist) {
+        if (distToFloor < edgeSnapThresholdPx && distToFloor < minDist) {
             minDist = distToFloor; closestPos = Position.FLOOR;
         }
-        if (distToCeiling < EDGE_SNAP_EPS && distToCeiling < minDist) {
+        if (distToCeiling < edgeSnapThresholdPx && distToCeiling < minDist) {
             minDist = distToCeiling; closestPos = Position.CEILING;
         }
-        if (distToLeftWall < EDGE_SNAP_EPS && distToLeftWall < minDist) {
+        if (distToLeftWall < edgeSnapThresholdPx && distToLeftWall < minDist) {
             minDist = distToLeftWall; closestPos = Position.WALL_LEFT;
         }
-        if (distToRightWall < EDGE_SNAP_EPS && distToRightWall < minDist) {
+        if (distToRightWall < edgeSnapThresholdPx && distToRightWall < minDist) {
             minDist = distToRightWall; closestPos = Position.WALL_RIGHT;
         }
 
@@ -1032,7 +1037,7 @@ public class UsagiView extends View {
     }
 
     private void checkEdgeAdhere() {
-        final float EPS = 2f;
+        final float EPS = edgeSnapThresholdPx / 3; // 使用更小的阈值作为精确检测
         if (y <= EPS) {
             currentPosition = Position.CEILING;
             currentState = State.IDLE; // 修复：直接设为IDLE，避免ADHERING卡顿
