@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -25,6 +26,7 @@ public class UsagiService extends Service {
     private WindowManager windowManager;
     private UsagiView usagiView;
     private ImageView backgroundView; // 背景视图
+    private android.content.BroadcastReceiver configChangeReceiver; // 配置变化接收器
 
     @Override
     public void onCreate() {
@@ -62,11 +64,18 @@ public class UsagiService extends Service {
         params.y = 0; // 由 UsagiView 内部计算并更新
         // 添加View到窗口
         windowManager.addView(usagiView, params);
+
+        // 注册屏幕配置变化监听
+        registerConfigChangeReceiver();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        // 注销配置变化监听
+        if (configChangeReceiver != null) {
+            unregisterReceiver(configChangeReceiver);
+        }
         // 移除View
         if (backgroundView != null) {
             windowManager.removeView(backgroundView);
@@ -145,6 +154,23 @@ public class UsagiService extends Service {
         }
         // 重新加载
         loadBackground();
+    }
+
+    // 注册屏幕配置变化监听
+    private void registerConfigChangeReceiver() {
+        configChangeReceiver = new android.content.BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (usagiView != null) {
+                    usagiView.updateScreenSize();
+                }
+                // 重新加载背景以适应新的屏幕尺寸
+                reloadBackground();
+            }
+        };
+        android.content.IntentFilter filter = new android.content.IntentFilter();
+        filter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
+        registerReceiver(configChangeReceiver, filter);
     }
 
     @Override
