@@ -9,28 +9,6 @@
 - ⚙️ **个性化设置**：音量、动画速度、开机自启、显示/隐藏
 - 📱 **多位置支持**：地面、墙壁、天花板自由移动
 
-### 🚀 快速开始
-
-#### 安装
-
-1. 下载 [最新 Release](https://github.com/yourusername/usagi/releases)
-2. 安装 APK 文件
-3. 授予**悬浮窗权限**
-4. 点击「启动桌宠」
-
-#### 从源码构建
-
-```bash
-# 克隆仓库
-git clone https://github.com/yourusername/usagi.git
-cd usagi
-
-# 使用 Android Studio 打开项目
-# 或使用命令行
-./gradlew assembleDebug
-```
-
-APK 文件将生成在 `app/build/outputs/apk/debug/` 目录
 
 ### 🎯 使用指南
 
